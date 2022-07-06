@@ -1,8 +1,67 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:my_app/screens/welcome_page.dart';
 import '../services/firebase_service.dart';
 import '../utils/constants.dart';
+import "../widgets/drawer.dart";
+import "../widgets/home_icons.dart";
+
+class Choice {
+  final String title;
+  final IconData icon;
+  final String routeName;
+
+  const Choice(
+      {required this.title, required this.icon, required this.routeName});
+}
+
+const List<Choice> choices = <Choice>[
+  Choice(title: 'WiFi', icon: Icons.wifi, routeName: '/wifi'),
+  Choice(title: 'IOT', icon: Icons.router, routeName: '/wifi'),
+  Choice(title: 'Map', icon: Icons.map, routeName: '/wifi'),
+  Choice(title: 'Security', icon: Icons.security_sharp, routeName: '/wifi'),
+  Choice(title: 'Setting', icon: Icons.settings, routeName: '/wifi'),
+  Choice(title: 'Cell', icon: Icons.network_cell, routeName: '/wifi'),
+];
+
+class homeIcons extends StatelessWidget {
+  homeIcons({Key? key, required this.choice}) : super(key: key);
+  final Choice choice;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        color: Color.fromARGB(255, 178, 219, 238),
+        elevation: 6.0,
+        child: InkWell(
+            hoverColor: Colors.orange,
+            splashColor: Colors.red,
+            focusColor: Colors.yellow,
+            highlightColor: Colors.purple,
+            onTap: () {
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => choice.routeName,
+              //   ),
+              // );
+              Navigator.pushNamed(context, choice.routeName);
+            },
+            child: Center(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(choice.title),
+                      //subtitle: Text("Subheading"),
+                      trailing: Icon(Icons.details),
+                    ),
+                    Expanded(child: Icon(choice.icon, size: 50.0)),
+                  ]),
+            )));
+  }
+}
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -20,8 +79,15 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
+    /*24 is for notification bar on Android*/
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
+    final double itemWidth = size.width / 2;
     return Scaffold(
         appBar: AppBar(
+          elevation: 15,
+          // leading: Icon(Icons.account_circle_rounded),
+          // leadingWidth: 60, // default is 56
           actions: <Widget>[
             IconButton(
               icon: Icon(
@@ -37,20 +103,18 @@ class _HomePageState extends State<HomePage> {
             )
           ],
           systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.blue),
-          title: Text("Home"),
+          title: Text("Signed in as ${user!.displayName}"),
         ),
-        body: Center(
-            child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(user!.email!),
-            Text(user!.displayName!),
-            Text("Signed in.."),
-            CircleAvatar(
-              //backgroundImage: NetworkImage(user!.photoURL!),
-              radius: 20,
-            )
-          ],
-        )));
+        drawer: myDrawer(),
+        body: GridView.count(
+            crossAxisCount: 2,
+            childAspectRatio: (itemWidth / itemHeight),
+            crossAxisSpacing: 4.0,
+            mainAxisSpacing: 12.0,
+            children: List.generate(choices.length, (index) {
+              return Center(
+                child: homeIcons(choice: choices[index]),
+              );
+            })));
   }
 }
