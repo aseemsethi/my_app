@@ -17,12 +17,15 @@ class Choice {
 }
 
 const List<Choice> choices = <Choice>[
-  Choice(title: 'WiFi', icon: Icons.wifi, routeName: '/wifi'),
-  Choice(title: 'IOT', icon: Icons.router, routeName: '/wifi'),
-  Choice(title: 'Map', icon: Icons.map, routeName: '/wifi'),
-  Choice(title: 'Security', icon: Icons.security_sharp, routeName: '/wifi'),
-  Choice(title: 'Setting', icon: Icons.settings, routeName: '/wifi'),
-  Choice(title: 'Cell', icon: Icons.network_cell, routeName: '/wifi'),
+  Choice(title: 'WiFi Info', icon: Icons.wifi, routeName: '/wifi'),
+  Choice(title: 'IOT Info', icon: Icons.router, routeName: '/wifi'),
+  Choice(title: 'Network Info', icon: Icons.map, routeName: '/wifi'),
+  Choice(
+      title: 'Security Posture',
+      icon: Icons.security_sharp,
+      routeName: '/wifi'),
+  Choice(title: 'Settings', icon: Icons.settings, routeName: '/wifi'),
+  Choice(title: 'Packet Capture', icon: Icons.network_cell, routeName: '/wifi'),
 ];
 
 class homeIcons extends StatelessWidget {
