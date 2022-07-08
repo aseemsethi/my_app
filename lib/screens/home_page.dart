@@ -5,7 +5,6 @@ import 'package:my_app/screens/welcome_page.dart';
 import '../services/firebase_service.dart';
 import '../utils/constants.dart';
 import "../widgets/drawer.dart";
-import "../widgets/home_icons.dart";
 
 class Choice {
   final String title;
@@ -20,11 +19,11 @@ const List<Choice> choices = <Choice>[
   Choice(title: 'WiFi Info', icon: Icons.wifi, routeName: '/wifi'),
   Choice(title: 'IOT Info', icon: Icons.router, routeName: '/wifi'),
   Choice(title: 'Network Info', icon: Icons.map, routeName: '/wifi'),
+  Choice(title: 'Security Posture', icon: Icons.security, routeName: '/wifi'),
   Choice(
-      title: 'Security Posture',
-      icon: Icons.security_sharp,
-      routeName: '/wifi'),
-  Choice(title: 'Settings', icon: Icons.settings, routeName: '/wifi'),
+      title: 'Mqtt',
+      icon: Icons.nest_cam_wired_stand_outlined,
+      routeName: '/mqtt'),
   Choice(title: 'Packet Capture', icon: Icons.network_cell, routeName: '/wifi'),
 ];
 
@@ -43,13 +42,11 @@ class homeIcons extends StatelessWidget {
             focusColor: Colors.yellow,
             highlightColor: Colors.purple,
             onTap: () {
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => choice.routeName,
-              //   ),
-              // );
-              Navigator.pushNamed(context, choice.routeName);
+              Navigator.pushNamed(
+                context,
+                choice.routeName,
+                arguments: {'title': 'WiFi MQTT'},
+              );
             },
             child: Center(
               child: Column(
