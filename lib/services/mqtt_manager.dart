@@ -61,7 +61,7 @@ class MQTTManager {
     assert(_client != null);
     try {
       print('MQTT::Mosquitto start client connecting....');
-      _currentState.setAppConnectionState(MQTTAppConnectionState.connecting);
+      _currentState.setAppConnectionState(MQTTAppConnectionState.Connecting);
       await _client!.connect();
     } on Exception catch (e) {
       print('MQTT::client exception - $e');
@@ -92,12 +92,12 @@ class MQTTManager {
         MqttConnectReturnCode.noneSpecified) {
       print('MQTT::OnDisconnected callback is solicited, this is correct');
     }
-    _currentState.setAppConnectionState(MQTTAppConnectionState.disconnected);
+    _currentState.setAppConnectionState(MQTTAppConnectionState.Disconnected);
   }
 
   /// The successful connect callback
   void onConnected() {
-    _currentState.setAppConnectionState(MQTTAppConnectionState.connected);
+    _currentState.setAppConnectionState(MQTTAppConnectionState.Connected);
     print('MQTT::Mosquitto client connected....');
     _client!.subscribe(_topic, MqttQos.atLeastOnce);
     _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
@@ -106,9 +106,10 @@ class MQTTManager {
 
       // final MqttPublishMessage recMess = c![0].payload;
       final String pt =
-          MqttPublishPayload.bytesToStringAsString(recMess.payload.message!);
+          MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
       _currentState.setReceivedText(pt);
       _currentState.setMsg(pt);
+      print(MQTTAppConnectionState.Connected);
       print(
           'MQTT::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');

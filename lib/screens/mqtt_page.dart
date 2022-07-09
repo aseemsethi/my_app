@@ -46,7 +46,22 @@ class _MqttPageState extends State<MqttPage> {
                     style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.w500,
-                        fontSize: 30),
+                        fontSize: 24),
+                  )),
+              Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
+                  child: Text(
+                    //'Status: ' + currentAppState.mqttState.value.toString(),
+                    'Status: ' +
+                        currentAppState.mqttState.value
+                            .toString()
+                            .split('.')
+                            .last,
+                    style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16),
                   )),
               Container(
                 padding: const EdgeInsets.all(10),
@@ -59,7 +74,7 @@ class _MqttPageState extends State<MqttPage> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
                 child: TextField(
                   obscureText: true,
                   controller: passwordController,
@@ -80,39 +95,57 @@ class _MqttPageState extends State<MqttPage> {
                 ),
               ),
               Container(
-                  height: 50,
-                  padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                  child: ElevatedButton(
-                    child: const Text('Start MQTT'),
-                    onPressed: () {
-                      print(nameController.text);
-                      print(passwordController.text);
-                      print(topicController.text);
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      _configureAndConnect(nameController.text,
-                          passwordController.text, topicController.text);
-                    },
-                  )),
+                  height: 100,
+                  padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Expanded(
+                            child: ElevatedButton(
+                                onPressed: () {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  _configureAndConnect(
+                                      nameController.text,
+                                      passwordController.text,
+                                      topicController.text);
+                                },
+                                child: Text(
+                                  "Start",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 20),
+                                ))),
+                        const Spacer(flex: 1),
+                        Expanded(
+                            child: ElevatedButton(
+                          onPressed: () {
+                            manager.disconnect();
+                          },
+                          child: Text(
+                            "Stop",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20),
+                          ),
+                        )),
+                      ])),
               Row(
-                children: <Widget>[
-                  const Text('Start MQTT Foreground Service '),
-                  TextButton(
-                      child: const Text(
-                        'Stop',
-                        style: TextStyle(fontSize: 20),
-                      ),
-                      onPressed: () {}),
-                ],
                 mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Logs'),
+                ],
+              ),
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
+                child: Text(
+                  currentAppState.mqttMsg.value.toString(),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),
-          // Column(
-          //   children: <Widget>[
-          //     Text(currentAppState.mqttState.value.toString()),
-          //     Text(currentAppState.mqttMsg.value.toString()),
-          //   ],
-          // ),
           // floatingActionButton: FloatingActionButton(
           //   onPressed: _configureAndConnect,
           //   tooltip: 'Play',
