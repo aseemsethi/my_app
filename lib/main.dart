@@ -6,6 +6,8 @@ import 'navigation/navigate.dart';
 import 'utils/constants.dart';
 import '../utils/mqttAppState.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'dart:isolate';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

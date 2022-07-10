@@ -1,18 +1,22 @@
+import 'dart:isolate';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../utils/mqttAppState.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
+import 'dart:isolate';
 
 class MQTTManager {
   // Private instance of client
-  final MQTTAppState _currentState;
+  //final MQTTAppState _currentState;
   MqttServerClient? _client;
   final String _identifier;
   final String _host;
   final String _topic;
   final String _username;
   final String _password;
+  SendPort gsendPort;
 
   // Constructor
   // ignore: sort_constructors_first
@@ -22,13 +26,15 @@ class MQTTManager {
       required String identifier,
       required String username,
       required String password,
-      required MQTTAppState state})
+      required SendPort sendPort})
+      //required MQTTAppState state})
       : _identifier = identifier,
         _host = host,
         _topic = topic,
         _username = username,
         _password = password,
-        _currentState = state;
+        gsendPort = sendPort;
+  //_currentState = state;
 
   void initializeMQTTClient() {
     _client = MqttServerClient(_host, _identifier);
@@ -61,7 +67,8 @@ class MQTTManager {
     assert(_client != null);
     try {
       print('MQTT::Mosquitto start client connecting....');
-      _currentState.setAppConnectionState(MQTTAppConnectionState.Connecting);
+      //_currentState.setAppConnectionState(MQTTAppConnectionState.Connecting);
+      gsendPort.send("connecting");
       await _client!.connect();
     } on Exception catch (e) {
       print('MQTT::client exception - $e');
@@ -92,12 +99,14 @@ class MQTTManager {
         MqttConnectReturnCode.noneSpecified) {
       print('MQTT::OnDisconnected callback is solicited, this is correct');
     }
-    _currentState.setAppConnectionState(MQTTAppConnectionState.Disconnected);
+    //_currentState.setAppConnectionState(MQTTAppConnectionState.Disconnected);
+    gsendPort.send("disconnected");
   }
 
   /// The successful connect callback
   void onConnected() {
-    _currentState.setAppConnectionState(MQTTAppConnectionState.Connected);
+    //_currentState.setAppConnectionState(MQTTAppConnectionState.Connected);
+    gsendPort.send("connected");
     print('MQTT::Mosquitto client connected....');
     _client!.subscribe(_topic, MqttQos.atLeastOnce);
     _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
@@ -107,12 +116,13 @@ class MQTTManager {
       // final MqttPublishMessage recMess = c![0].payload;
       final String pt =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      _currentState.setReceivedText(pt);
-      _currentState.setMsg(pt);
+      //_currentState.setReceivedText(pt);
+      //_currentState.setMsg(pt);
       print(MQTTAppConnectionState.Connected);
-      print(
-          'MQTT::Change notification:: topic is <${c[0].topic}>, payload is <-- $pt -->');
+      print('MQTT MSG: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');
+      print('Sending published message to UI');
+      gsendPort.send(pt);
     });
     print(
         'MQTT::OnConnected client callback - Client connection was sucessful');

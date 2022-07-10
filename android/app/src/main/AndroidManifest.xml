@@ -35,5 +35,6 @@
            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver" 
            android:exported="false"
            tools:node="merge" />
+        <service android:name="com.pravera.flutter_foreground_task.service.ForegroundService" />
     </application>
 </manifest>
