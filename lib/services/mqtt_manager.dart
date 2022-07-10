@@ -121,8 +121,8 @@ class MQTTManager {
       print(MQTTAppConnectionState.Connected);
       print('MQTT MSG: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');
-      print('Sending published message to UI');
       gsendPort.send(pt);
+      gsendPort.send("connected");
     });
     print(
         'MQTT::OnConnected client callback - Client connection was sucessful');

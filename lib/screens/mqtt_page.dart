@@ -115,7 +115,7 @@ class _MqttPageState extends State<MqttPage> {
                         Expanded(
                             child: ElevatedButton(
                           onPressed: () {
-                            //manager.disconnect();
+                            _stopForegroundTask();
                           },
                           child: Text(
                             "Stop",
@@ -129,7 +129,11 @@ class _MqttPageState extends State<MqttPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Logs'),
+                  Text('Logs',
+                      style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 20)),
                 ],
               ),
               Container(
