@@ -2,6 +2,7 @@ import '../screens/home_page.dart';
 import '../screens/sign_in_page.dart';
 import '../screens/welcome_page.dart';
 import '../screens/mqtt_page.dart';
+import '../screens/iot.dart';
 import 'package:flutter/material.dart';
 
 class Navigate {
@@ -9,7 +10,7 @@ class Navigate {
     '/': (context) => WelcomePage(),
     '/sign-in': (context) => SignInPage(),
     '/home': (context) => HomePage(),
-    '/wifi': (context) => HomePage(),
+    '/iot': (context) => IoTPage(),
     '/mqtt': (context) => MqttPage()
   };
 }

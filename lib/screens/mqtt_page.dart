@@ -2,9 +2,10 @@ import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import '../services/mqtt_manager.dart';
 import '../utils/mqttAppState.dart';
-//import 'package:provider/provider.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'dart:isolate';
+import '../utils/db_helper.dart';
 
 class MqttPage extends StatefulWidget {
   @override
@@ -14,17 +15,19 @@ class MqttPage extends StatefulWidget {
 }
 
 class _MqttPageState extends State<MqttPage> {
-  late MQTTAppState currentAppState = MQTTAppState();
+  //late MQTTAppState currentAppState = MQTTAppState();
   TextEditingController nameController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController topicController = TextEditingController();
   ReceivePort? _receivePort;
+  late MQTTAppState currentAppState;
+  DatabaseHelper? dbHelper;
 
   @override
   Widget build(BuildContext context) {
-    // final MQTTAppState appState = Provider.of<MQTTAppState>(context);
-    // currentAppState = appState;
     print("MqttPage build...");
+    currentAppState =
+        context.watch<MQTTAppState>(); // rebuild when mqttState changes
     return AnimatedBuilder(
       animation: Listenable.merge(
           [currentAppState.mqttState, currentAppState.mqttMsg]),
@@ -50,7 +53,6 @@ class _MqttPageState extends State<MqttPage> {
                   alignment: Alignment.center,
                   padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                   child: Text(
-                    //'Status: ' + currentAppState.mqttState.value.toString(),
                     'Status: ' +
                         currentAppState.mqttState.value
                             .toString()
@@ -96,14 +98,19 @@ class _MqttPageState extends State<MqttPage> {
                   height: 100,
                   padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
                   child: Row(
+                      //mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Expanded(
                             child: ElevatedButton(
                                 onPressed: () {
                                   FocusManager.instance.primaryFocus?.unfocus();
-                                  _startForegroundTask();
+                                  _startForegroundTask(currentAppState);
                                 },
+                                style: ElevatedButton.styleFrom(
+                                  primary:
+                                      Colors.greenAccent, // Background color
+                                ),
                                 child: Text(
                                   "Start",
                                   style: TextStyle(
@@ -111,14 +118,38 @@ class _MqttPageState extends State<MqttPage> {
                                       fontWeight: FontWeight.w500,
                                       fontSize: 20),
                                 ))),
-                        const Spacer(flex: 1),
+                        //const Spacer(flex: 1),
+                        SizedBox(width: 10),
                         Expanded(
                             child: ElevatedButton(
                           onPressed: () {
                             _stopForegroundTask();
                           },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.orangeAccent, // Background color
+                          ),
                           child: Text(
                             "Stop",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20),
+                          ),
+                        )),
+                        //const Spacer(flex: 1),
+                        SizedBox(width: 10),
+                        Expanded(
+                            child: ElevatedButton(
+                          onPressed: () {
+                            dbHelper = DatabaseHelper.instance;
+                            dbHelper!.clean();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Color.fromARGB(
+                                255, 252, 100, 54), // Background color
+                          ),
+                          child: Text(
+                            "Clean",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
@@ -129,7 +160,7 @@ class _MqttPageState extends State<MqttPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('Logs',
+                  Text('Last Log',
                       style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.w500,
@@ -187,7 +218,7 @@ class _MqttPageState extends State<MqttPage> {
     );
   }
 
-  Future<bool> _startForegroundTask() async {
+  Future<bool> _startForegroundTask(MQTTAppState currentAppState) async {
     print("_startForegroundTask called");
     // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
     // onNotificationPressed function to be called.
@@ -225,14 +256,15 @@ class _MqttPageState extends State<MqttPage> {
         callback: startCallback,
       );
     }
-    return _registerReceivePort(receivePort);
+    return _registerReceivePort(receivePort, currentAppState);
   }
 
   Future<bool> _stopForegroundTask() async {
     return await FlutterForegroundTask.stopService();
   }
 
-  bool _registerReceivePort(ReceivePort? receivePort) {
+  bool _registerReceivePort(
+      ReceivePort? receivePort, MQTTAppState currentAppState) {
     print("Register receivePort");
     _closeReceivePort();
 
@@ -252,6 +284,8 @@ class _MqttPageState extends State<MqttPage> {
             currentAppState.mqttMsg.value = message.toString();
           }
           print('Msg recvd from MQTT: ${message.toString()}');
+          //FBroadcast.instance()
+          //    .stickyBroadcast('Data', value: message.toString());
         } else if (message is DateTime) {
           print('timestamp: ${message.toString()}');
         }
@@ -278,7 +312,7 @@ class _MqttPageState extends State<MqttPage> {
       // You can get the previous ReceivePort without restarting the service.
       if (await FlutterForegroundTask.isRunningService) {
         final newReceivePort = await FlutterForegroundTask.receivePort;
-        _registerReceivePort(newReceivePort);
+        _registerReceivePort(newReceivePort, currentAppState);
       }
     });
   }

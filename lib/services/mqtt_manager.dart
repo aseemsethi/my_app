@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,6 +7,10 @@ import 'package:mqtt_client/mqtt_client.dart';
 import '../utils/mqttAppState.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'dart:isolate';
+import 'package:sqflite/sqflite.dart';
+import 'package:flutter/widgets.dart';
+import 'package:path/path.dart';
+import '../utils/db_helper.dart';
 
 class MQTTManager {
   // Private instance of client
@@ -17,6 +22,7 @@ class MQTTManager {
   final String _username;
   final String _password;
   SendPort gsendPort;
+  DatabaseHelper? dbHelper;
 
   // Constructor
   // ignore: sort_constructors_first
@@ -42,12 +48,13 @@ class MQTTManager {
     _client!.keepAlivePeriod = 20;
     _client!.onDisconnected = onDisconnected;
     _client!.secure = false;
-    _client!.logging(on: true);
+    _client!.logging(on: false);
 
     /// Add the successful connection callback
     _client!.onConnected = onConnected;
     _client!.onSubscribed = onSubscribed;
 
+    WidgetsFlutterBinding.ensureInitialized();
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier(_identifier)
         //.authenticateAs('draadmin', 'DRAAdmin@123')
@@ -123,8 +130,61 @@ class MQTTManager {
       print('');
       gsendPort.send(pt);
       gsendPort.send("connected");
+      // reference to our single class that manages the database
+      dbHelper = DatabaseHelper.instance;
+      _insertRaw(pt);
+      _query();
     });
     print(
         'MQTT::OnConnected client callback - Client connection was sucessful');
+  }
+
+  void _insert(String dev, String log) async {
+    //row to insert
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnName: dev,
+      DatabaseHelper.columnLog: log,
+    };
+    final id = await dbHelper!.insert(row);
+  }
+
+// topic: <gurupada/100/alarm> pt = MainDoor:Open
+// {"gwid":"78e36d642ff0","type":"esp32", "ip":"192.168.68.127", "time":"15:09:28-12/07"}
+// {"data":"T:25.70:H:80.00","gwid":"78e36d642ff0","name":"DG Room",
+// "sensorid":"54985c","time":"15:09:29-12/07","type":"temperature"}
+  void _insertRaw(String log) async {
+    Map<String, dynamic> log1 = jsonDecode(log);
+    if (log1['data'] == null) {
+      print('DB: null Data');
+      return;
+    }
+    print("DB Raw: ${log1['type']}...${log1['data']}");
+    final id = await dbHelper!.insertRaw(log1['type'], log1['data']);
+    print("DB inserted row id: $id, type: ${log1['type']}, ${log1['data']}");
+  }
+
+  void _query() async {
+    final count = await dbHelper!.queryRowCount();
+    final allRows = await dbHelper!.queryAllRows();
+    print('DB query all rows: $count');
+    allRows.forEach(print);
+  }
+
+  void _update() async {
+    // row to update
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnId: 1,
+      DatabaseHelper.columnName: 'Mary',
+      DatabaseHelper.columnLog: 32
+    };
+    final rowsAffected = await dbHelper!.update(row);
+    print('DB updated $rowsAffected row(s)');
+  }
+
+  void _delete() async {
+    // Assuming that the number of rows is the id for the last row.
+    final id = await dbHelper!.queryRowCount();
+    final rowsDeleted = await dbHelper!.delete(id!);
+    print('DB deleted $rowsDeleted row(s): row $id');
   }
 }

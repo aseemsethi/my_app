@@ -5,9 +5,9 @@ import 'package:my_app/screens/mqtt_page.dart';
 import 'navigation/navigate.dart';
 import 'utils/constants.dart';
 import '../utils/mqttAppState.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'dart:isolate';
+import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +20,13 @@ void main() async {
       projectId: "flutterapp-b1ba6",
     ),
   );
-  runApp(MyApp());
+  // runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => MQTTAppState(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

@@ -17,7 +17,7 @@ class Choice {
 
 const List<Choice> choices = <Choice>[
   Choice(title: 'WiFi Info', icon: Icons.wifi, routeName: '/wifi'),
-  Choice(title: 'IOT Info', icon: Icons.router, routeName: '/wifi'),
+  Choice(title: 'IOT Info', icon: Icons.router, routeName: '/iot'),
   Choice(title: 'Network Info', icon: Icons.map, routeName: '/wifi'),
   Choice(title: 'Security Posture', icon: Icons.security, routeName: '/wifi'),
   Choice(
@@ -37,10 +37,6 @@ class homeIcons extends StatelessWidget {
         color: Color.fromARGB(255, 178, 219, 238),
         elevation: 6.0,
         child: InkWell(
-            hoverColor: Colors.orange,
-            splashColor: Colors.red,
-            focusColor: Colors.yellow,
-            highlightColor: Colors.purple,
             onTap: () {
               Navigator.pushNamed(
                 context,
