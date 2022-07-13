@@ -57,7 +57,6 @@ class MQTTManager {
     WidgetsFlutterBinding.ensureInitialized();
     final MqttConnectMessage connMess = MqttConnectMessage()
         .withClientIdentifier(_identifier)
-        //.authenticateAs('draadmin', 'DRAAdmin@123')
         .authenticateAs(_username, _password)
         .withWillTopic(
             'willtopic') // If you set this you must set a will message
@@ -104,10 +103,13 @@ class MQTTManager {
     print('MQTT::OnDisconnected client callback - Client disconnection');
     if (_client!.connectionStatus!.returnCode ==
         MqttConnectReturnCode.noneSpecified) {
-      print('MQTT::OnDisconnected callback is solicited, this is correct');
+      print('MQTT::OnDisconnected callback is solicited');
     }
+    print(
+        'MQTT::OnDisconnected callback is not solicited......retry connect.....');
     //_currentState.setAppConnectionState(MQTTAppConnectionState.Disconnected);
     gsendPort.send("disconnected");
+    connect();
   }
 
   /// The successful connect callback

@@ -17,10 +17,10 @@ class Device {
 }
 
 const List<Device> devices = <Device>[
-  Device(title: 'Main Door', icon: Icons.door_front_door),
-  Device(title: 'Back Door', icon: Icons.door_back_door),
-  Device(title: 'Side Door', icon: Icons.door_sliding),
-  Device(title: 'Temperature', icon: Icons.thermostat),
+  Device(title: 'Main Door', icon: Icons.door_front_door_outlined),
+  Device(title: 'Back Door', icon: Icons.door_back_door_outlined),
+  Device(title: 'Side Door', icon: Icons.door_sliding_outlined),
+  Device(title: 'Temperature', icon: Icons.thermostat_auto_outlined),
 ];
 
 class deviceIcons extends StatelessWidget {
@@ -38,11 +38,19 @@ class deviceIcons extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     ListTile(
-                      title: Text(choice.title),
-                      //subtitle: Text("Subheading"),
-                      trailing: Icon(Icons.details),
+                      title: Text(choice.title,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12)),
+                      subtitle: Text("Status",
+                          style: TextStyle(
+                              color: Colors.blueAccent,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 10)),
+                      trailing: Icon(Icons.open_in_full_outlined),
                     ),
-                    Expanded(child: Icon(choice.icon, size: 50.0)),
+                    Expanded(child: Icon(choice.icon, size: 70.0)),
                   ]),
             )));
   }

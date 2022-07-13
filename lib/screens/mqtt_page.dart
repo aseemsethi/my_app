@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'dart:isolate';
 import '../utils/db_helper.dart';
+import 'dart:math';
 
 class MqttPage extends StatefulWidget {
   @override
@@ -283,9 +284,7 @@ class _MqttPageState extends State<MqttPage> {
           } else {
             currentAppState.mqttMsg.value = message.toString();
           }
-          print('Msg recvd from MQTT: ${message.toString()}');
-          //FBroadcast.instance()
-          //    .stickyBroadcast('Data', value: message.toString());
+          print('UI: MQTT Msg recvd');
         } else if (message is DateTime) {
           print('timestamp: ${message.toString()}');
         }
@@ -391,12 +390,20 @@ class MyTaskHandler extends TaskHandler {
     _sendPort?.send('onNotificationPressed');
   }
 
+  String generateRandomString(int len) {
+    var r = Random();
+    const _chars =
+        'AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz1234567890';
+    return List.generate(len, (index) => _chars[r.nextInt(_chars.length)])
+        .join();
+  }
+
   void _configureAndConnect(
       String user, String passwd, String topic, SendPort sendPort) {
     print('Configure and Connect...');
     String osPrefix = 'Flutter_iOS';
     if (Platform.isAndroid) {
-      osPrefix = 'Flutter_Android';
+      osPrefix = generateRandomString(10); // 'Flutter_Android';
     }
     manager = MQTTManager(
         host: '52.66.70.168',
@@ -407,6 +414,7 @@ class MyTaskHandler extends TaskHandler {
         sendPort: sendPort);
     //state: currentAppState);
     manager.initializeMQTTClient();
+    print('MQTT: client id: $osPrefix');
     manager.connect();
   }
 }
