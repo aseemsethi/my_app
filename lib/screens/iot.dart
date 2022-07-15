@@ -1,8 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../utils/db_helper.dart';
 import '../utils/db_helper.dart';
 import '../utils/mqttAppState.dart';
+import "../utils/constants.dart";
 
 // class IoTPage extends StatefulWidget {
 //   IoTPage({Key? key}) : super(key: key);
@@ -22,14 +25,21 @@ const List<Device> devices = <Device>[
   Device(title: 'Main Door', icon: Icons.door_front_door_outlined),
   Device(title: 'Back Door', icon: Icons.door_back_door_outlined),
   Device(title: 'Side Door', icon: Icons.door_sliding_outlined),
-  Device(title: 'Temperature', icon: Icons.thermostat_auto_outlined),
+  Device(title: 'Temp', icon: Icons.thermostat_auto_outlined),
 ];
 
 class deviceIcons extends StatelessWidget {
-  deviceIcons({Key? key, required this.choice}) : super(key: key);
+  deviceIcons({Key? key, required this.choice, required this.temperature})
+      : super(key: key);
   final Device choice;
+  final String temperature;
+
   @override
   Widget build(BuildContext context) {
+    List tempMap = temperature.multiSplit([': ', ", ", '{', '}']);
+    //tempMap.forEach((element) => {print('IOT: $element')});
+    //print("IOT: ${choice.title}");
+
     return Card(
         color: Color.fromARGB(255, 178, 219, 238),
         elevation: 6.0,
@@ -41,16 +51,21 @@ class deviceIcons extends StatelessWidget {
                   children: <Widget>[
                     ListTile(
                       title: Text(choice.title,
-                          style: TextStyle(
+                          style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
                               fontSize: 12)),
-                      subtitle: Text("Status",
-                          style: TextStyle(
-                              color: Colors.blueAccent,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 10)),
-                      trailing: Icon(Icons.open_in_full_outlined),
+                      subtitle: choice.title == 'Temp'
+                          ? Text("${tempMap[2]}, ${tempMap[6]}, ${tempMap[10]}",
+                              style: const TextStyle(
+                                  color: Colors.blueAccent,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 10))
+                          : const Text("True"),
+                      trailing: Icon(
+                        Icons.open_in_full_outlined,
+                        color: Colors.green,
+                      ),
                     ),
                     Expanded(child: Icon(choice.icon, size: 70.0)),
                   ]),
@@ -73,10 +88,10 @@ class _IoTPageState extends State<IoTPage> {
     var mqtt = context.watch<MQTTAppState>(); // rebuild when mqttState changes
     DatabaseHelper? dbHelper;
     dbHelper = context.watch<DatabaseHelper>(); // rebuild when dbHelper changes
-    var t;
     print('iot: build..');
 
-    Future<String> getTemp() {
+    Future<Map<String, dynamic>> getTemp() {
+      print('IOT UI: getTemp');
       //return Future.delayed(Duration(seconds: 2), () {
       return dbHelper!.queryTemp();
       //});
@@ -90,14 +105,18 @@ class _IoTPageState extends State<IoTPage> {
       appBar: AppBar(
         title: Text("IoT Devices"),
       ),
-      bottomNavigationBar: BottomAppBar(
-        child: Text(mqtt.mqttMsg.value),
-        color: Colors.amber,
-      ),
+      // Never gets updated. Only updates when MQTT screen is active.
+      // bottomNavigationBar: BottomAppBar(
+      //   child: Text(mqtt.mqttMsg.value),
+      //   color: Colors.amber,
+      // ),
       body: FutureBuilder(
-        builder: (ctx, snapshot) {
+        builder: (ctx, AsyncSnapshot<Map<String, dynamic>> snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            if (snapshot.hasData) {
+            print('IOT UI: conn state done');
+            if (snapshot.data != null) {
+              print('IOT UI: has data');
+              //Map<String, String> myMap = Map.from(snapshot.data!['log']);
               print('IOT UI: Got update - ${snapshot.data}');
               return Column(children: <Widget>[
                 Expanded(
@@ -108,10 +127,12 @@ class _IoTPageState extends State<IoTPage> {
                         mainAxisSpacing: 12.0,
                         children: List.generate(devices.length, (index) {
                           return Center(
-                            child: deviceIcons(choice: devices[index]),
+                            child: deviceIcons(
+                                choice: devices[index],
+                                temperature: snapshot.data!['log']),
                           );
                         }))),
-                Text('Hi....... ${snapshot.data}....'),
+                Text('${snapshot.data!['log']}'),
                 ElevatedButton(
                   onPressed: () {
                     setState(() {

@@ -33,3 +33,16 @@ class Constants {
       statusBarColor: Constants.kPrimaryColor,
       statusBarIconBrightness: Brightness.dark);
 }
+
+extension UtilExtensions on String {
+  List<String> multiSplit(Iterable<String> delimeters) {
+    if (delimeters.isEmpty) return [this];
+    if (delimeters.length == 1) return this.split(delimeters.first);
+
+    final next = delimeters.skip(1);
+    return this
+        .split(delimeters.first)
+        .expand((i) => i.multiSplit(next))
+        .toList();
+  }
+}

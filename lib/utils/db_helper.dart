@@ -70,7 +70,7 @@ class DatabaseHelper with ChangeNotifier {
     return await db!.insert(table, row);
   }
 
-  Future<int> insertRaw(String dev, String log) async {
+  Future<int> insertRaw(String dev, Map<String, dynamic> log) async {
     Database? db = await instance.database;
     //return await db!.insert(table, row);
     print('DB helper: insertRaw: $dev, $log');
@@ -78,13 +78,14 @@ class DatabaseHelper with ChangeNotifier {
         'UPDATE my_table SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
   }
 
-  Future<String> queryTemp() async {
+  Future<Map<String, dynamic>> queryTemp() async {
     Database? db = await instance.database;
     var res = await db!
         .rawQuery('SELECT log FROM my_table where device = \'temperature\'');
-    print('DB query Temp: $res');
+    print('DB: queryTemp: $res');
     print('DB: ${res[0]['log']}');
-    return res[0]['log'].toString();
+    //Map<String, String> myMap = Map.from(res[0]['log']);
+    return res[0];
   }
 
   // All of the rows are returned as a list of maps, where each map is

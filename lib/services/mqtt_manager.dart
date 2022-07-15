@@ -151,18 +151,20 @@ class MQTTManager {
   }
 
 // topic: <gurupada/100/alarm> pt = MainDoor:Open
-// {"gwid":"78e36d642ff0","type":"esp32", "ip":"192.168.68.127", "time":"15:09:28-12/07"}
-// {"data":"T:25.70:H:80.00","gwid":"78e36d642ff0","name":"DG Room",
-// "sensorid":"54985c","time":"15:09:29-12/07","type":"temperature"}
+// pt = {"gwid":"78e36d642ff0","type":"esp32", "ip":"192.168.68.127", "time":"15:09:28-12/07"}
+// pt = {"data":"T:25.70:H:80.00","gwid":"78e36d642ff0","name":"DG Room",
+//       "sensorid":"54985c","time":"15:09:29-12/07","type":"temperature"}
   void _insertRaw(String log) async {
     Map<String, dynamic> log1 = jsonDecode(log);
     if (log1['data'] == null) {
       print('DB: null Data');
       return;
     }
-    print("DB Raw: ${log1['type']}...${log1['data']}");
-    final id = await dbHelper!.insertRaw(log1['type'], log1['data']);
-    print("DB inserted row id: $id, type: ${log1['type']}, ${log1['data']}");
+    //print("DB Raw: ${log1['type']}...${log1['data']}");
+    //final id = await dbHelper!.insertRaw(log1['type'], log1['data']);
+    final id = await dbHelper!.insertRaw(log1['type'], log1);
+    print("DB Raw: $id: ${log1['type']} => $log1");
+    //print("DB inserted row id: $id, type: ${log1['type']}, ${log1['data']}");
   }
 
   void _query() async {
