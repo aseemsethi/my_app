@@ -16,10 +16,11 @@ class MqttPage extends StatefulWidget {
 }
 
 class _MqttPageState extends State<MqttPage> {
-  //late MQTTAppState currentAppState = MQTTAppState();
-  TextEditingController nameController = TextEditingController();
+  TextEditingController nameController =
+      TextEditingController(text: 'draadmin');
   TextEditingController passwordController = TextEditingController();
-  TextEditingController topicController = TextEditingController();
+  TextEditingController topicController =
+      TextEditingController(text: 'gurupada/100/#');
   ReceivePort? _receivePort;
   late MQTTAppState currentAppState;
   DatabaseHelper? dbHelper;
@@ -273,6 +274,8 @@ class _MqttPageState extends State<MqttPage> {
 
     if (receivePort != null) {
       _receivePort = receivePort;
+      // currentAppState.mqttPort = receivePort;
+      // currentAppState.mqttPort.asBroadcastStream();
       _receivePort?.listen((message) {
         if (message is int) {
           print('eventCount: $message');
@@ -312,6 +315,7 @@ class _MqttPageState extends State<MqttPage> {
     _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) async {
       // You can get the previous ReceivePort without restarting the service.
       if (await FlutterForegroundTask.isRunningService) {
+        print('MQTT UI: initState - service already running');
         final newReceivePort = await FlutterForegroundTask.receivePort;
         _registerReceivePort(newReceivePort, currentAppState);
       }
@@ -348,7 +352,6 @@ class MyTaskHandler extends TaskHandler {
     final pwd = await FlutterForegroundTask.getData<String>(key: 'pwd');
     print('topic: $topic, username: $username, pwd: $pwd');
     _configureAndConnect(username!, pwd!, topic!, sendPort!);
-    //nameController.text, passwordController.text, topicController.text);
   }
 
   @override

@@ -98,7 +98,7 @@ class _IoTPageState extends State<IoTPage> {
         builder: (ctx, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasData) {
-              print('yyy - ${snapshot.data}');
+              print('IOT UI: Got update - ${snapshot.data}');
               return Column(children: <Widget>[
                 Expanded(
                     child: GridView.count(

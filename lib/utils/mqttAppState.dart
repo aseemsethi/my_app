@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:flutter/cupertino.dart';
 
 enum MQTTAppConnectionState { Disconnected, Connecting, Connected }
