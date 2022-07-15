@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../utils/db_helper.dart';
+import '../utils/db_helper.dart';
 import '../utils/mqttAppState.dart';
 
 // class IoTPage extends StatefulWidget {
@@ -56,16 +58,34 @@ class deviceIcons extends StatelessWidget {
   }
 }
 
-class IoTPage extends StatelessWidget {
+class IoTPage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return _IoTPageState();
+  }
+}
+
+class _IoTPageState extends State<IoTPage> {
   String msg = "Init";
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     var mqtt = context.watch<MQTTAppState>(); // rebuild when mqttState changes
+    DatabaseHelper? dbHelper;
+    dbHelper = context.watch<DatabaseHelper>(); // rebuild when dbHelper changes
+    var t;
+    print('iot: build..');
+
+    Future<String> getTemp() {
+      //return Future.delayed(Duration(seconds: 2), () {
+      return dbHelper!.queryTemp();
+      //});
+    }
 
     /*24 is for notification bar on Android*/
     final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
     final double itemWidth = size.width / 3;
+    //return FutureBuilder(builder: builder) {
     return Scaffold(
       appBar: AppBar(
         title: Text("IoT Devices"),
@@ -74,16 +94,41 @@ class IoTPage extends StatelessWidget {
         child: Text(mqtt.mqttMsg.value),
         color: Colors.amber,
       ),
-      body: GridView.count(
-          crossAxisCount: 3,
-          childAspectRatio: (itemWidth / itemHeight),
-          crossAxisSpacing: 4.0,
-          mainAxisSpacing: 12.0,
-          children: List.generate(devices.length, (index) {
-            return Center(
-              child: deviceIcons(choice: devices[index]),
-            );
-          })),
+      body: FutureBuilder(
+        builder: (ctx, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData) {
+              print('yyy - ${snapshot.data}');
+              return Column(children: <Widget>[
+                Expanded(
+                    child: GridView.count(
+                        crossAxisCount: 3,
+                        childAspectRatio: (itemWidth / itemHeight),
+                        crossAxisSpacing: 4.0,
+                        mainAxisSpacing: 12.0,
+                        children: List.generate(devices.length, (index) {
+                          return Center(
+                            child: deviceIcons(choice: devices[index]),
+                          );
+                        }))),
+                Text('Hi....... ${snapshot.data}....'),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      //getTemp();
+                    });
+                  },
+                  child: const Text("Refresh"),
+                )
+              ]);
+            } else {
+              return const CircularProgressIndicator();
+            }
+          }
+          return const CircularProgressIndicator();
+        },
+        future: getTemp(),
+      ),
     );
   }
 }

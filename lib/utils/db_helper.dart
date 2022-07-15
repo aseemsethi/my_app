@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DatabaseHelper {
+class DatabaseHelper with ChangeNotifier {
   static final _databaseName = "mqtt.db";
   static final _databaseVersion = 1;
   static final table = 'my_table';
@@ -75,6 +76,15 @@ class DatabaseHelper {
     print('DB helper: insertRaw: $dev, $log');
     return await db!.rawUpdate(
         'UPDATE my_table SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
+  }
+
+  Future<String> queryTemp() async {
+    Database? db = await instance.database;
+    var res = await db!
+        .rawQuery('SELECT log FROM my_table where device = \'temperature\'');
+    print('DB query Temp: $res');
+    print('DB: ${res[0]['log']}');
+    return res[0]['log'].toString();
   }
 
   // All of the rows are returned as a list of maps, where each map is

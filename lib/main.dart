@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:my_app/screens/welcome_page.dart';
 import 'package:my_app/screens/mqtt_page.dart';
+import 'package:my_app/utils/db_helper.dart';
 import 'navigation/navigate.dart';
 import 'utils/constants.dart';
 import '../utils/mqttAppState.dart';
@@ -22,8 +23,15 @@ void main() async {
   );
   // runApp(MyApp());
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => MQTTAppState(),
+    // ChangeNotifierProvider(
+    //   create: (context) => MQTTAppState(),
+    //   child: MyApp(),
+    // ),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MQTTAppState()),
+        ChangeNotifierProvider(create: (_) => DatabaseHelper.instance),
+      ],
       child: MyApp(),
     ),
   );

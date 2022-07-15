@@ -29,6 +29,8 @@ class _MqttPageState extends State<MqttPage> {
     print("MqttPage build...");
     currentAppState =
         context.watch<MQTTAppState>(); // rebuild when mqttState changes
+    dbHelper =
+        context.watch<DatabaseHelper>(); // rebuild when mqttState changes
     return AnimatedBuilder(
       animation: Listenable.merge(
           [currentAppState.mqttState, currentAppState.mqttMsg]),
@@ -142,7 +144,7 @@ class _MqttPageState extends State<MqttPage> {
                         Expanded(
                             child: ElevatedButton(
                           onPressed: () {
-                            dbHelper = DatabaseHelper.instance;
+                            //dbHelper = DatabaseHelper.instance;
                             dbHelper!.clean();
                           },
                           style: ElevatedButton.styleFrom(
