@@ -41,8 +41,8 @@ class deviceIcons extends StatelessWidget {
     //print("IOT: ${choice.title}");
 
     return Card(
-        color: Color.fromARGB(255, 178, 219, 238),
-        elevation: 6.0,
+        color: Color.fromARGB(194, 251, 249, 154),
+        elevation: 10.0,
         child: InkWell(
             onTap: () {},
             child: Center(
@@ -54,20 +54,32 @@ class deviceIcons extends StatelessWidget {
                           style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
-                              fontSize: 12)),
+                              fontSize: 14)),
                       subtitle: choice.title == 'Temp'
                           ? Text("${tempMap[2]}, ${tempMap[6]}, ${tempMap[10]}",
                               style: const TextStyle(
                                   color: Colors.blueAccent,
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 10))
+                                  fontSize: 12))
                           : const Text("True"),
-                      trailing: Icon(
-                        Icons.open_in_full_outlined,
+                      trailing: const Icon(
+                        Icons.check,
                         color: Colors.green,
                       ),
                     ),
-                    Expanded(child: Icon(choice.icon, size: 70.0)),
+                    choice.title == 'Temp'
+                        ? Expanded(
+                            child: Icon(
+                            choice.icon,
+                            size: 70.0,
+                            color: Colors.green,
+                          ))
+                        : Expanded(
+                            child: Icon(
+                            choice.icon,
+                            size: 70.0,
+                            color: Colors.black,
+                          )),
                   ]),
             )));
   }
@@ -98,7 +110,7 @@ class _IoTPageState extends State<IoTPage> {
     }
 
     /*24 is for notification bar on Android*/
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 3;
     final double itemWidth = size.width / 3;
     //return FutureBuilder(builder: builder) {
     return Scaffold(
@@ -118,30 +130,33 @@ class _IoTPageState extends State<IoTPage> {
               print('IOT UI: has data');
               //Map<String, String> myMap = Map.from(snapshot.data!['log']);
               print('IOT UI: Got update - ${snapshot.data}');
-              return Column(children: <Widget>[
-                Expanded(
-                    child: GridView.count(
-                        crossAxisCount: 3,
-                        childAspectRatio: (itemWidth / itemHeight),
-                        crossAxisSpacing: 4.0,
-                        mainAxisSpacing: 12.0,
-                        children: List.generate(devices.length, (index) {
-                          return Center(
-                            child: deviceIcons(
-                                choice: devices[index],
-                                temperature: snapshot.data!['log']),
-                          );
-                        }))),
-                Text('${snapshot.data!['log']}'),
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() {
-                      //getTemp();
-                    });
-                  },
-                  child: const Text("Refresh"),
-                )
-              ]);
+              return Container(
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 2),
+                  margin: EdgeInsets.all(5.0),
+                  child: Column(children: <Widget>[
+                    Expanded(
+                        child: GridView.count(
+                            crossAxisCount: 3,
+                            childAspectRatio: (itemWidth / itemHeight),
+                            crossAxisSpacing: 4.0,
+                            mainAxisSpacing: 8.0,
+                            children: List.generate(devices.length, (index) {
+                              return Center(
+                                child: deviceIcons(
+                                    choice: devices[index],
+                                    temperature: snapshot.data!['log']),
+                              );
+                            }))),
+                    Text('${snapshot.data!['log']}'),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          //getTemp();
+                        });
+                      },
+                      child: const Text("Refresh"),
+                    )
+                  ]));
             } else {
               return const CircularProgressIndicator();
             }
