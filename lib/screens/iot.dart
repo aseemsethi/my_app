@@ -54,18 +54,23 @@ class deviceIcons extends StatelessWidget {
                           style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.w500,
-                              fontSize: 14)),
+                              fontSize: 12)),
                       subtitle: choice.title == 'Temp'
                           ? Text("${tempMap[2]}, ${tempMap[6]}, ${tempMap[10]}",
                               style: const TextStyle(
                                   color: Colors.blueAccent,
                                   fontWeight: FontWeight.w500,
-                                  fontSize: 12))
-                          : const Text("True"),
-                      trailing: const Icon(
-                        Icons.check,
-                        color: Colors.green,
-                      ),
+                                  fontSize: 10))
+                          : const Text("Closed"),
+                      trailing: choice.title == 'Temp'
+                          ? const Icon(
+                              Icons.check,
+                              color: Colors.green,
+                            )
+                          : const Icon(
+                              Icons.close_fullscreen_outlined,
+                              color: Colors.green,
+                            ),
                     ),
                     choice.title == 'Temp'
                         ? Expanded(
@@ -110,7 +115,7 @@ class _IoTPageState extends State<IoTPage> {
     }
 
     /*24 is for notification bar on Android*/
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 3;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
     final double itemWidth = size.width / 3;
     //return FutureBuilder(builder: builder) {
     return Scaffold(
@@ -136,7 +141,7 @@ class _IoTPageState extends State<IoTPage> {
                   child: Column(children: <Widget>[
                     Expanded(
                         child: GridView.count(
-                            crossAxisCount: 3,
+                            crossAxisCount: 2,
                             childAspectRatio: (itemWidth / itemHeight),
                             crossAxisSpacing: 4.0,
                             mainAxisSpacing: 8.0,
