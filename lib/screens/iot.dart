@@ -99,8 +99,20 @@ class deviceIcons extends StatelessWidget {
                             ? const Icon(
                                 Icons.check,
                                 color: Colors.green,
+                                size: 40.0,
                               )
-                            : null),
+                            : ((choice.title.contains('MainDoor')) &&
+                                    (doorMap[2].contains('Open')))
+                                ? const Icon(
+                                    Icons.lock_open_rounded,
+                                    color: Colors.green,
+                                    size: 40.0,
+                                  )
+                                : const Icon(
+                                    Icons.lock_outline_rounded,
+                                    color: Colors.green,
+                                    size: 40.0,
+                                  )),
                     choice.title == 'Temp'
                         ? Expanded(
                             child: Icon(
