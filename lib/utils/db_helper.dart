@@ -52,8 +52,10 @@ class DatabaseHelper with ChangeNotifier {
           ''');
     print('DB: onCreate called.....');
     var resp = await db.rawInsert(
-        'INSERT INTO my_table(device, log) VALUES("temperature", "Init")');
-    print('DB: entering 1st row returns $resp');
+        'INSERT INTO my_table(device, log) VALUES("temperature", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
+    resp = await db.rawInsert(
+        'INSERT INTO my_table(device, log) VALUES("door", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
+    print('DB: entering 2 rows');
   }
 
   // Helper methods
@@ -78,13 +80,21 @@ class DatabaseHelper with ChangeNotifier {
         'UPDATE my_table SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
   }
 
-  Future<Map<String, dynamic>> queryTemp() async {
+  Future<List<Map<String, dynamic>>> queryTemp() async {
     Database? db = await instance.database;
-    var res = await db!
-        .rawQuery('SELECT log FROM my_table where device = \'temperature\'');
+    var res = await db!.rawQuery(
+        'SELECT log FROM my_table where device = \'temperature\' OR device = \'door\'');
     print('DB: queryTemp: $res');
     print('DB: ${res[0]['log']}');
-    //Map<String, String> myMap = Map.from(res[0]['log']);
+    return res; // res[0];
+  }
+
+  Future<Map<String, dynamic>> queryDoor() async {
+    Database? db = await instance.database;
+    var res =
+        await db!.rawQuery('SELECT log FROM my_table where device = \'door\'');
+    print('DB: queryDoor: $res');
+    print('DB: ${res[0]['log']}');
     return res[0];
   }
 

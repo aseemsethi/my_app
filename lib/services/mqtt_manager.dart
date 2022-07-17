@@ -139,7 +139,7 @@ class MQTTManager {
       print('');
 
       var now = DateTime.now();
-      var formatter = DateFormat.yMd().add_jm();
+      var formatter = DateFormat.MMMd().add_jm();
       String formattedDate = formatter.format(now);
       print('Alarm:$formattedDate');
 
@@ -174,17 +174,18 @@ class MQTTManager {
 // pt = {"gwid":"78e36d642ff0","type":"esp32", "ip":"192.168.68.127", "time":"15:09:28-12/07"}
 // pt = {"data":"T:25.70:H:80.00","gwid":"78e36d642ff0","name":"DG Room",
 //       "sensorid":"54985c","time":"15:09:29-12/07","type":"temperature"}
+// topic is <gurupada/100/door>,
+//      pt =  {"data":"Open","gwid":"78e36d642ff0","name":"MainDoor","sensorid":"4ffe1a",
+//      "time":"12:47:01-17/07","type":"door"}
   void _insertRaw(String log) async {
     Map<String, dynamic> log1 = jsonDecode(log);
     if (log1['data'] == null) {
+      // this is to catch the GWID message
       print('DB: null Data');
       return;
     }
-    //print("DB Raw: ${log1['type']}...${log1['data']}");
-    //final id = await dbHelper!.insertRaw(log1['type'], log1['data']);
     final id = await dbHelper!.insertRaw(log1['type'], log1);
     print("DB Raw: $id: ${log1['type']} => $log1");
-    //print("DB inserted row id: $id, type: ${log1['type']}, ${log1['data']}");
   }
 
   void _query() async {
