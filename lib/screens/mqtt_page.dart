@@ -208,8 +208,8 @@ class _MqttPageState extends State<MqttPage> {
           backgroundColor: Colors.orange,
         ),
         buttons: [
-          const NotificationButton(id: 'sendButton', text: 'Send'),
-          const NotificationButton(id: 'testButton', text: 'Test'),
+          const NotificationButton(id: 'CheckService', text: 'Check Service'),
+          //const NotificationButton(id: 'testButton', text: 'Test'),
         ],
       ),
       iosNotificationOptions: const IOSNotificationOptions(
@@ -385,6 +385,8 @@ class MyTaskHandler extends TaskHandler {
   void onButtonPressed(String id) {
     // Called when the notification button on the Android platform is pressed.
     print('onButtonPressed >> $id');
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'MQTT Service: Check', notificationText: 'Alive');
   }
 
   @override
