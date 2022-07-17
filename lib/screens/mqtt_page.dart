@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../services/mqtt_manager.dart';
 import '../utils/mqttAppState.dart';
 import 'package:provider/provider.dart';
@@ -196,8 +197,10 @@ class _MqttPageState extends State<MqttPage> {
         channelId: 'notification_channel_id',
         channelName: 'Foreground Notification',
         channelDescription: 'MQTT forground service.',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
+        channelImportance: NotificationChannelImportance.MAX,
+        priority: NotificationPriority.HIGH,
+        isSticky: true,
+        playSound: true,
         iconData: const NotificationIconData(
           resType: ResourceType.mipmap,
           resPrefix: ResourcePrefix.ic,
@@ -255,7 +258,7 @@ class _MqttPageState extends State<MqttPage> {
     } else {
       print('Starting foreground service');
       receivePort = await FlutterForegroundTask.startService(
-        notificationTitle: 'Foreground Service is running',
+        notificationTitle: 'MQTT Service: running',
         notificationText: 'Tap to return to the app',
         callback: startCallback,
       );
@@ -278,18 +281,21 @@ class _MqttPageState extends State<MqttPage> {
       // currentAppState.mqttPort.asBroadcastStream();
       _receivePort?.listen((message) {
         if (message is int) {
-          print('eventCount: $message');
+          print('MQTT UI: eventCount: $message');
         } else if (message is String) {
           if (message == 'onNotificationPressed') {
-            Navigator.of(context).pushNamed('/resume-route');
+            //Navigator.of(context).pushNamed('/resume-route');
+            print('MQTT UI: notification pressed');
           } else if ((message == 'connected') ||
               (message == 'connecting') ||
               (message == 'disconnected')) {
             currentAppState.mqttState.value = message.toString();
+          } else if (message.contains('Alarm')) {
+            currentAppState.mqttState.value = message.toString();
           } else {
             currentAppState.mqttMsg.value = message.toString();
           }
-          print('UI: MQTT Msg recvd');
+          print('MQTT UI: Msg recvd');
         } else if (message is DateTime) {
           print('timestamp: ${message.toString()}');
         }
@@ -356,9 +362,9 @@ class MyTaskHandler extends TaskHandler {
 
   @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
-    FlutterForegroundTask.updateService(
-        notificationTitle: 'MyTaskHandler',
-        notificationText: 'eventCount: $_eventCount');
+    // FlutterForegroundTask.updateService(
+    //     notificationTitle: 'MyTaskHandler',
+    //     notificationText: 'eventCount: $_eventCount');
 
     // Send data to the main isolate.
     print('SendPort..sending event data: sendPort: ${sendPort.hashCode}');
@@ -391,7 +397,7 @@ class MyTaskHandler extends TaskHandler {
     // Note that the app will only route to "/resume-route" when it is exited so
     // it will usually be necessary to send a message through the send port to
     // signal it to restore state when the app is already started.
-    FlutterForegroundTask.launchApp("/resume-route");
+    FlutterForegroundTask.launchApp("/");
     _sendPort?.send('onNotificationPressed');
   }
 

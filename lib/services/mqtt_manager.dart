@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import '../utils/mqttAppState.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
@@ -11,6 +12,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
 import 'package:path/path.dart';
 import '../utils/db_helper.dart';
+import 'package:intl/intl.dart';
 
 class MQTTManager {
   // Private instance of client
@@ -109,7 +111,12 @@ class MQTTManager {
         'MQTT::OnDisconnected callback is not solicited......retry connect.....');
     //_currentState.setAppConnectionState(MQTTAppConnectionState.Disconnected);
     gsendPort.send("disconnected");
+    wait2seconds();
     connect();
+  }
+
+  wait2seconds() async {
+    await Future.delayed(const Duration(seconds: 2), () {});
   }
 
   /// The successful connect callback
@@ -130,12 +137,25 @@ class MQTTManager {
       print(MQTTAppConnectionState.Connected);
       print('MQTT MSG: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');
+
+      var now = DateTime.now();
+      var formatter = DateFormat.yMd().add_jm();
+      String formattedDate = formatter.format(now);
+      print('Alarm:$formattedDate');
+
       gsendPort.send(pt);
       gsendPort.send("connected");
       // reference to our single class that manages the database
       dbHelper = DatabaseHelper.instance;
-      _insertRaw(pt);
-      _query();
+      if (c[0].topic.contains('alarm')) {
+        gsendPort.send('Alarm:$pt : $formattedDate');
+        FlutterForegroundTask.updateService(
+            notificationTitle: 'MQTT Service: Alarm',
+            notificationText: '$pt : $formattedDate');
+      } else {
+        _insertRaw(pt);
+        _query();
+      }
     });
     print(
         'MQTT::OnConnected client callback - Client connection was sucessful');
