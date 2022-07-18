@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:my_app/screens/welcome_page.dart';
 import '../services/firebase_service.dart';
 import '../utils/constants.dart';
 import "../widgets/drawer.dart";
@@ -16,15 +15,19 @@ class Choice {
 }
 
 const List<Choice> choices = <Choice>[
-  Choice(title: 'WiFi Info', icon: Icons.wifi, routeName: '/wifi'),
+  Choice(
+      title: 'Service Discovery (mDNS)',
+      icon: Icons.network_check_rounded,
+      routeName: '/nd'),
   Choice(title: 'IOT Info', icon: Icons.router, routeName: '/iot'),
-  Choice(title: 'Network Info', icon: Icons.map, routeName: '/wifi'),
+  Choice(
+      title: 'Network Discovery', icon: Icons.map, routeName: '/pingDiscover'),
   Choice(title: 'Security Posture', icon: Icons.security, routeName: '/wifi'),
   Choice(
       title: 'Mqtt',
       icon: Icons.nest_cam_wired_stand_outlined,
       routeName: '/mqtt'),
-  Choice(title: 'Packet Capture', icon: Icons.network_cell, routeName: '/wifi'),
+  Choice(title: 'WiFi Info', icon: Icons.network_cell, routeName: '/wifi'),
 ];
 
 class homeIcons extends StatelessWidget {

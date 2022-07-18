@@ -1,3 +1,7 @@
+import 'package:my_app/screens/network_discovery.dart';
+import 'package:my_app/screens/ping_discovery.dart';
+import 'package:path/path.dart';
+
 import '../screens/home_page.dart';
 import '../screens/sign_in_page.dart';
 import '../screens/welcome_page.dart';
@@ -11,6 +15,8 @@ class Navigate {
     '/sign-in': (context) => SignInPage(),
     '/home': (context) => HomePage(),
     '/iot': (context) => IoTPage(),
-    '/mqtt': (context) => MqttPage()
+    '/mqtt': (context) => MqttPage(),
+    '/nd': (context) => NdApp(),
+    '/pingDiscover': (context) => PingDiscover()
   };
 }
