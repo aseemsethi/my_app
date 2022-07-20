@@ -89,26 +89,83 @@ class _NdState extends State<NdApp> {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('NSD Example'),
+          title: const Text('mDNS Services'),
         ),
         body: Column(
           children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                ElevatedButton(
-                  child: const Text('Start'),
-                  onPressed: () async => startDiscovery(),
-                ),
-                ElevatedButton(
-                  child: const Text('Stop'),
-                  onPressed: () async => stopDiscovery(),
-                ),
-              ],
-            ),
-            Expanded(
+            Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  'Services:',
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
+                      fontSize: 24),
+                )),
+            Container(
+                height: 100,
+                padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                child: Row(
+                    //mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Expanded(
+                          child: ElevatedButton(
+                              onPressed: () async {
+                                startDiscovery();
+                                FocusManager.instance.primaryFocus?.unfocus();
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.greenAccent, // Background color
+                              ),
+                              child: const Text(
+                                "Start",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 20),
+                              ))),
+                      //const Spacer(flex: 1),
+                      SizedBox(width: 10),
+                      Expanded(
+                          child: ElevatedButton(
+                        onPressed: () {
+                          stopDiscovery();
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.orangeAccent, // Background color
+                        ),
+                        child: const Text(
+                          "Stop",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 20),
+                        ),
+                      )),
+                    ])),
+            Container(
+              padding: const EdgeInsets.all(10),
+              height: 80.0 * 4,
               child: _buildMainWidget(context),
             ),
+            // Row(
+            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            //   children: <Widget>[
+            //     ElevatedButton(
+            //       child: const Text('Start'),
+            //       onPressed: () async => startDiscovery(),
+            //     ),
+            //     ElevatedButton(
+            //       child: const Text('Stop'),
+            //       onPressed: () async => stopDiscovery(),
+            //     ),
+            //   ],
+            // ),
+            // Expanded(
+            //   child: _buildMainWidget(context),
+            // ),
           ],
         ),
       ),
@@ -116,6 +173,35 @@ class _NdState extends State<NdApp> {
   }
 
   Widget _buildMainWidget(BuildContext context) {
+    if (services.isEmpty && _scanning) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    } else if (services.isEmpty && !_scanning) {
+      return const SizedBox.shrink();
+    } else {
+      return ListView.builder(
+        itemCount: services.length,
+        itemBuilder: (context, i) {
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.purple,
+              child: Text("Srv".toString()),
+            ),
+            //title: Text(devices[i]),
+            title: Text(services[i].name ?? 'Invalid service name'),
+            subtitle: Text("Srv"),
+            trailing: const Icon(Icons.computer_outlined),
+            onTap: () {
+              print("ND: Tapped ${services[i].name}");
+            },
+          );
+        },
+      );
+    }
+  }
+
+  Widget _buildMainWidget1(BuildContext context) {
     if (services.isEmpty && _scanning) {
       return const Center(
         child: CircularProgressIndicator(),
