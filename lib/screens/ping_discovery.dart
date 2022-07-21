@@ -13,8 +13,7 @@ class PingDiscover extends StatefulWidget {
 class _PingDiscoverState extends State<PingDiscover> {
   bool _scanning = false;
   final devices = <String>[];
-  TextEditingController scanAddress =
-      TextEditingController(text: '192.168.68.0');
+  TextEditingController scanAddress = TextEditingController(text: '192.168.68');
 
   @override
   void initState() {
@@ -89,7 +88,7 @@ class _PingDiscoverState extends State<PingDiscover> {
                   controller: scanAddress,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    labelText: 'Server User Name',
+                    labelText: 'Subnet IP',
                   ),
                 ),
               ),
@@ -136,6 +135,7 @@ class _PingDiscoverState extends State<PingDiscover> {
                       ])),
               Container(
                 padding: const EdgeInsets.all(10),
+                height: 80.0 * 4,
                 child: _buildMainWidget(context),
               ),
               //])
@@ -143,37 +143,31 @@ class _PingDiscoverState extends State<PingDiscover> {
   }
 
   Widget _buildMainWidget(BuildContext context) {
-    // child: _buildMainWidget(context),
-
     if (_scanning) {
       return const Center(
         child: CircularProgressIndicator(),
       );
     } else if (devices.length == 0) {
       print('PD: Empty device list');
-      //return const SizedBox.shrink();
       return Text("No devices found");
     } else {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        physics: ScrollPhysics(),
-        child: Column(
-          children: <Widget>[
-            const Text(
-              'Devices Found..',
+      return ListView.builder(
+        itemCount: devices.length,
+        //itemCount: 6,
+        itemBuilder: (context, i) {
+          return ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.purple,
+              child: Text("Srv".toString()),
             ),
-            SizedBox(
-              height: 10.0,
-            ),
-            ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: 5,
-                itemBuilder: (context, index) {
-                  return Text(devices[index]);
-                })
-          ],
-        ),
+            title: Text(devices[i]),
+            subtitle: Text("Server"),
+            trailing: const Icon(Icons.computer_outlined),
+            onTap: () {
+              print("Tapped ${devices[i]}");
+            },
+          );
+        },
       );
     }
   }
