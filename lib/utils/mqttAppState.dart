@@ -12,6 +12,7 @@ class MQTTAppState with ChangeNotifier {
       MQTTAppConnectionState.Disconnected;
   String _receivedText = '';
   String _historyText = '';
+  String wifiGatewayIP = '';
 
   void setReceivedText(String text) {
     _receivedText = text;

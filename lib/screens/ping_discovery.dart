@@ -3,6 +3,9 @@ import 'package:my_app/navigation/navigate.dart';
 import 'dart:async';
 
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
+import 'package:provider/provider.dart';
+
+import '../utils/mqttAppState.dart';
 
 class PingDiscover extends StatefulWidget {
   const PingDiscover({Key? key}) : super(key: key);
@@ -15,6 +18,7 @@ class _PingDiscoverState extends State<PingDiscover> {
   bool _scanning = false;
   final devices = <String>[];
   TextEditingController scanAddress = TextEditingController(text: '192.168.68');
+  late MQTTAppState currentAppState;
 
   @override
   void initState() {
@@ -66,6 +70,12 @@ class _PingDiscoverState extends State<PingDiscover> {
 
   @override
   Widget build(BuildContext context) {
+    currentAppState =
+        context.watch<MQTTAppState>(); // rebuild when mqttState changes
+    String result = currentAppState.wifiGatewayIP
+        .substring(0, currentAppState.wifiGatewayIP.lastIndexOf('.'));
+    scanAddress.text = result;
+
     return MaterialApp(
         home: Scaffold(
             appBar: AppBar(

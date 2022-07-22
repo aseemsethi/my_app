@@ -1,5 +1,6 @@
 import 'package:my_app/screens/network_discovery.dart';
 import 'package:my_app/screens/ping_discovery.dart';
+import 'package:my_app/screens/wifi_info.dart';
 import 'package:path/path.dart';
 
 import '../screens/home_page.dart';
@@ -17,6 +18,7 @@ class Navigate {
     '/iot': (context) => IoTPage(),
     '/mqtt': (context) => MqttPage(),
     '/nd': (context) => NdApp(),
-    '/pingDiscover': (context) => PingDiscover()
+    '/pingDiscover': (context) => PingDiscover(),
+    '/wifi': (context) => WiFiApp()
   };
 }

@@ -7,8 +7,11 @@
 #include "generated_plugin_registrant.h"
 
 #include <flutter_nsd/flutter_nsd_plugin.h>
+#include <network_info_plus_windows/network_info_plus_windows_plugin.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   FlutterNsdPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterNsdPlugin"));
+  NetworkInfoPlusWindowsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("NetworkInfoPlusWindowsPlugin"));
 }
