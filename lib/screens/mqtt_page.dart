@@ -272,10 +272,11 @@ class _MqttPageState extends State<MqttPage> {
 
   bool _registerReceivePort(
       ReceivePort? receivePort, MQTTAppState currentAppState) {
-    print("Register receivePort");
+    print("Register receivePort: ${receivePort!.sendPort.hashCode}");
     _closeReceivePort();
 
     if (receivePort != null) {
+      print("MQTT UI: Starting to lisen to msg from service");
       _receivePort = receivePort;
       // currentAppState.mqttPort = receivePort;
       // currentAppState.mqttPort.asBroadcastStream();
