@@ -8,8 +8,11 @@ class FirebaseService {
 
   Future<String?> signInwithGoogle() async {
     try {
+      print('signInwithGoogle..');
       final GoogleSignInAccount? googleSignInAccount =
           await _googleSignIn.signIn();
+      print('signInwithGoogle...done');
+
       final GoogleSignInAuthentication googleSignInAuthentication =
           await googleSignInAccount!.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(

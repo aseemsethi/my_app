@@ -137,6 +137,7 @@ class _GoogleSignInState extends State<GoogleSignIn> {
                 setState(() {
                   isLoading = true;
                 });
+                print('Instantiating firebaseService');
                 FirebaseService service = new FirebaseService();
                 try {
                   await service.signInwithGoogle();
@@ -144,6 +145,7 @@ class _GoogleSignInState extends State<GoogleSignIn> {
                       context, Constants.homeNavigate, (route) => false);
                 } catch (e) {
                   if (e is FirebaseAuthException) {
+                    print('error');
                     showMessage(e.message!);
                   }
                 }
