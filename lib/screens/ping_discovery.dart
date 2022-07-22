@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_app/navigation/navigate.dart';
 import 'dart:async';
 
 import 'package:ping_discover_network_forked/ping_discover_network_forked.dart';
@@ -126,6 +127,23 @@ class _PingDiscoverState extends State<PingDiscover> {
                           ),
                           child: const Text(
                             "Stop",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 20),
+                          ),
+                        )),
+                        SizedBox(width: 10),
+                        Expanded(
+                            child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.orangeAccent, // Background color
+                          ),
+                          child: const Text(
+                            "Back",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
