@@ -89,27 +89,28 @@ class _HomePageState extends State<HomePage> {
           // leadingWidth: 60, // default is 56
           actions: <Widget>[
             IconButton(
-              icon: Icon(
+              icon: const Icon(
                 Icons.logout,
                 color: Colors.white,
               ),
               onPressed: () async {
-                FirebaseService service = new FirebaseService();
+                FirebaseService service = FirebaseService();
                 await service.signOutFromGoogle();
                 Navigator.pushReplacementNamed(
                     context, Constants.signInNavigate);
               },
             )
           ],
-          systemOverlayStyle: SystemUiOverlayStyle(statusBarColor: Colors.blue),
-          title: Text("Signed in as ${user!.displayName}"),
+          systemOverlayStyle:
+              const SystemUiOverlayStyle(statusBarColor: Colors.blue),
+          title: Text("${user!.displayName}"),
         ),
         drawer: myDrawer(),
         body: GridView.count(
             crossAxisCount: 2,
             childAspectRatio: (itemWidth / itemHeight),
             crossAxisSpacing: 4.0,
-            mainAxisSpacing: 12.0,
+            mainAxisSpacing: 8.0,
             children: List.generate(choices.length, (index) {
               return Center(
                 child: homeIcons(choice: choices[index]),
