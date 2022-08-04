@@ -84,8 +84,6 @@ class MQTTManager {
 
   void disconnect() {
     print('Disconnected');
-    FlutterForegroundTask.updateService(
-        notificationTitle: 'disconnect', notificationText: "true");
     _client!.disconnect();
   }
 
@@ -98,15 +96,15 @@ class MQTTManager {
   /// The subscribed callback
   void onSubscribed(String topic) {
     print('MQTT::Subscription confirmed for topic $topic');
-    FlutterForegroundTask.updateService(
-        notificationTitle: 'onSubscribed', notificationText: topic);
+    // FlutterForegroundTask.updateService(
+    //     notificationTitle: 'onSubscribed', notificationText: topic);
   }
 
   /// The unsolicited disconnect callback
   void onDisconnected() {
     print('MQTT::OnDisconnected client callback - Client disconnection');
     FlutterForegroundTask.updateService(
-        notificationTitle: 'onDisconnected', notificationText: "true");
+        notificationTitle: 'MQTT Disconnected', notificationText: "True");
     if (_client!.connectionStatus!.returnCode ==
         MqttConnectReturnCode.noneSpecified) {
       print('MQTT::OnDisconnected callback is solicited');
@@ -119,14 +117,14 @@ class MQTTManager {
   }
 
   wait2seconds() async {
-    await Future.delayed(const Duration(seconds: 2), () {});
+    await Future.delayed(const Duration(seconds: 4), () {});
   }
 
   /// The successful connect callback
   void onConnected() {
     FlutterForegroundTask.updateService(
-        notificationTitle: 'MQTT Connected', notificationText: _topic);
-    //gsendPort.send("MQTT Connected");
+        notificationTitle: 'MQTT Connected', notificationText: "True");
+    gsendPort?.send("MQTT Connected");
     print('MQTT::Mosquitto client connected....');
     _client!.subscribe(_topic!, MqttQos.atLeastOnce);
     _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
