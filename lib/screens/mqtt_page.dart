@@ -8,6 +8,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'dart:isolate';
 import '../utils/db_helper.dart';
 import 'dart:math';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MqttPage extends StatefulWidget {
   @override
@@ -28,7 +29,7 @@ class _MqttPageState extends State<MqttPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("MqttPage build...");
+    print("MyTaskHandler: MqttPage build...");
     currentAppState =
         context.watch<MQTTAppState>(); // rebuild when mqttState changes
     dbHelper =
@@ -339,6 +340,7 @@ class _MqttPageState extends State<MqttPage> {
 // The callback function should always be a top-level function.
 void startCallback() {
   // The setTaskHandler function must be called to handle the task in the background.
+  print('startCallback: MyTaskHandler');
   FlutterForegroundTask.setTaskHandler(MyTaskHandler());
 }
 
@@ -353,12 +355,28 @@ class MyTaskHandler extends TaskHandler {
     print('MyTaskHandler:OnStart: called: sendPort: ${sendPort?.hashCode}');
 
     // You can use the getData function to get the stored data.
-    final topic = await FlutterForegroundTask.getData<String>(key: 'topic');
-    final username =
+    String? topic = await FlutterForegroundTask.getData<String>(key: 'topic');
+    String? username =
         await FlutterForegroundTask.getData<String>(key: 'username');
-    final pwd = await FlutterForegroundTask.getData<String>(key: 'pwd');
-    print('topic: $topic, username: $username, pwd: $pwd');
-    _configureAndConnect(username!, pwd!, topic!, sendPort!);
+    String? pwd = await FlutterForegroundTask.getData<String>(key: 'pwd');
+    // FlutterForegroundTask.updateService(
+    //     notificationTitle: 'MyTaskHandler:onStart',
+    //     notificationText: "$username:$pwd:$topic");
+    print('MyTaskHandler: topic: $topic, username: $username, pwd: $pwd');
+    if ((username == null) ||
+        (pwd == null) ||
+        (topic == null) ||
+        username.isEmpty ||
+        pwd.isEmpty ||
+        topic.isEmpty) {
+      final prefs = await SharedPreferences.getInstance();
+      username = prefs.getString('username');
+      pwd = prefs.getString('password');
+      topic = prefs.getString('topic');
+      print(
+          'MyTaskHandler: SharedPrefs: topic: $topic, username: $username, pwd: $pwd');
+    }
+    _configureAndConnect(username, pwd, topic, sendPort);
   }
 
   @override
@@ -368,7 +386,8 @@ class MyTaskHandler extends TaskHandler {
     //     notificationText: 'eventCount: $_eventCount');
 
     // Send data to the main isolate.
-    print('SendPort..sending event data: sendPort: ${sendPort.hashCode}');
+    print(
+        'MyTaskHandler: SendPort..sending event data: sendPort: ${sendPort.hashCode}');
     sendPort?.send(_eventCount);
     manager.gsendPort = sendPort!;
 
@@ -377,7 +396,7 @@ class MyTaskHandler extends TaskHandler {
 
   @override
   Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
-    print('onTaskHandler: onDestroy');
+    print('MyTaskHandler: onDestroy');
     // You can use the clearAllData function to clear all the stored data.
     await FlutterForegroundTask.clearAllData();
   }
@@ -385,7 +404,7 @@ class MyTaskHandler extends TaskHandler {
   @override
   void onButtonPressed(String id) {
     // Called when the notification button on the Android platform is pressed.
-    print('onButtonPressed >> $id');
+    print('MyTaskHandler: onButtonPressed >> $id');
     FlutterForegroundTask.updateService(
         notificationTitle: 'MQTT Service: Check', notificationText: 'Alive');
   }
@@ -413,12 +432,14 @@ class MyTaskHandler extends TaskHandler {
   }
 
   void _configureAndConnect(
-      String user, String passwd, String topic, SendPort sendPort) {
+      String? user, String? passwd, String? topic, SendPort? sendPort) {
     print('Configure and Connect...');
     String osPrefix = 'Flutter_iOS';
     if (Platform.isAndroid) {
       osPrefix = generateRandomString(10); // 'Flutter_Android';
+      print('Android platform');
     }
+    saveData(user, passwd, topic);
     manager = MQTTManager(
         host: '52.66.70.168',
         topic: topic, // 'gurupada/100/#',
@@ -426,9 +447,16 @@ class MyTaskHandler extends TaskHandler {
         username: user,
         password: passwd,
         sendPort: sendPort);
-    //state: currentAppState);
     manager.initializeMQTTClient();
     print('MQTT: client id: $osPrefix');
     manager.connect();
+  }
+
+  saveData(String? user, String? passwd, String? topic) async {
+    print('MQTT: Saving data for MyTaskHandler...');
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', user!);
+    await prefs.setString('password', passwd!);
+    await prefs.setString('topic', topic!);
   }
 }

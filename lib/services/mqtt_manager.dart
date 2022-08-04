@@ -18,23 +18,23 @@ class MQTTManager {
   // Private instance of client
   //final MQTTAppState _currentState;
   MqttServerClient? _client;
-  final String _identifier;
-  final String _host;
-  final String _topic;
-  final String _username;
-  final String _password;
-  SendPort gsendPort;
+  final String? _identifier;
+  final String? _host;
+  final String? _topic;
+  final String? _username;
+  final String? _password;
+  SendPort? gsendPort;
   DatabaseHelper? dbHelper;
 
   // Constructor
   // ignore: sort_constructors_first
   MQTTManager(
-      {required String host,
-      required String topic,
-      required String identifier,
-      required String username,
-      required String password,
-      required SendPort sendPort})
+      {required String? host,
+      required String? topic,
+      required String? identifier,
+      required String? username,
+      required String? password,
+      required SendPort? sendPort})
       //required MQTTAppState state})
       : _identifier = identifier,
         _host = host,
@@ -42,10 +42,9 @@ class MQTTManager {
         _username = username,
         _password = password,
         gsendPort = sendPort;
-  //_currentState = state;
 
   void initializeMQTTClient() {
-    _client = MqttServerClient(_host, _identifier);
+    _client = MqttServerClient(_host!, _identifier!);
     _client!.port = 1883;
     _client!.keepAlivePeriod = 20;
     _client!.onDisconnected = onDisconnected;
@@ -58,7 +57,7 @@ class MQTTManager {
 
     WidgetsFlutterBinding.ensureInitialized();
     final MqttConnectMessage connMess = MqttConnectMessage()
-        .withClientIdentifier(_identifier)
+        .withClientIdentifier(_identifier!)
         .authenticateAs(_username, _password)
         .withWillTopic(
             'willtopic') // If you set this you must set a will message
@@ -75,8 +74,7 @@ class MQTTManager {
     assert(_client != null);
     try {
       print('MQTT::Mosquitto start client connecting....');
-      //_currentState.setAppConnectionState(MQTTAppConnectionState.Connecting);
-      gsendPort.send("connecting");
+      //gsendPort.send("connecting");
       await _client!.connect();
     } on Exception catch (e) {
       print('MQTT::client exception - $e');
@@ -86,31 +84,36 @@ class MQTTManager {
 
   void disconnect() {
     print('Disconnected');
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'disconnect', notificationText: "true");
     _client!.disconnect();
   }
 
   void publish(String message) {
     final MqttClientPayloadBuilder builder = MqttClientPayloadBuilder();
     builder.addString(message);
-    _client!.publishMessage(_topic, MqttQos.exactlyOnce, builder.payload!);
+    _client!.publishMessage(_topic!, MqttQos.exactlyOnce, builder.payload!);
   }
 
   /// The subscribed callback
   void onSubscribed(String topic) {
     print('MQTT::Subscription confirmed for topic $topic');
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'onSubscribed', notificationText: topic);
   }
 
   /// The unsolicited disconnect callback
   void onDisconnected() {
     print('MQTT::OnDisconnected client callback - Client disconnection');
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'onDisconnected', notificationText: "true");
     if (_client!.connectionStatus!.returnCode ==
         MqttConnectReturnCode.noneSpecified) {
       print('MQTT::OnDisconnected callback is solicited');
     }
     print(
         'MQTT::OnDisconnected callback is not solicited......retry connect.....');
-    //_currentState.setAppConnectionState(MQTTAppConnectionState.Disconnected);
-    gsendPort.send("disconnected");
+    //gsendPort.send("disconnected");
     wait2seconds();
     connect();
   }
@@ -121,34 +124,35 @@ class MQTTManager {
 
   /// The successful connect callback
   void onConnected() {
-    //_currentState.setAppConnectionState(MQTTAppConnectionState.Connected);
-    gsendPort.send("connected");
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'MQTT Connected', notificationText: _topic);
+    //gsendPort.send("MQTT Connected");
     print('MQTT::Mosquitto client connected....');
-    _client!.subscribe(_topic, MqttQos.atLeastOnce);
+    _client!.subscribe(_topic!, MqttQos.atLeastOnce);
     _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage?>>? c) {
       // ignore: avoid_as
       final MqttPublishMessage recMess = c![0].payload as MqttPublishMessage;
-
       // final MqttPublishMessage recMess = c![0].payload;
       final String pt =
           MqttPublishPayload.bytesToStringAsString(recMess.payload.message);
-      //_currentState.setReceivedText(pt);
-      //_currentState.setMsg(pt);
       print(MQTTAppConnectionState.Connected);
       print('MQTT MSG: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');
+
+      // FlutterForegroundTask.updateService(
+      //     notificationTitle: 'onConnected',
+      //     notificationText: "${gsendPort.hashCode}:$pt");
 
       var now = DateTime.now();
       var formatter = DateFormat.MMMd().add_jm();
       String formattedDate = formatter.format(now);
       print('Alarm:$formattedDate');
 
-      gsendPort.send(pt);
-      gsendPort.send("connected");
-      // reference to our single class that manages the database
+      //gsendPort.send(pt);
+      //gsendPort.send("connected");
       dbHelper = DatabaseHelper.instance;
       if (c[0].topic.contains('alarm')) {
-        gsendPort.send('Alarm:$pt : $formattedDate');
+        //gsendPort.send('Alarm:$pt : $formattedDate');
         FlutterForegroundTask.updateService(
             notificationTitle: 'MQTT Service: Alarm',
             notificationText: '$pt : $formattedDate');
