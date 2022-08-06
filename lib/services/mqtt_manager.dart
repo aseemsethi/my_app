@@ -96,8 +96,6 @@ class MQTTManager {
   /// The subscribed callback
   void onSubscribed(String topic) {
     print('MQTT::Subscription confirmed for topic $topic');
-    // FlutterForegroundTask.updateService(
-    //     notificationTitle: 'onSubscribed', notificationText: topic);
   }
 
   /// The unsolicited disconnect callback
@@ -122,8 +120,12 @@ class MQTTManager {
 
   /// The successful connect callback
   void onConnected() {
+    var formatter = DateFormat.MMMd().add_jm();
+    var now = DateTime.now();
+    String formattedDate = formatter.format(now);
+
     FlutterForegroundTask.updateService(
-        notificationTitle: 'MQTT Connected', notificationText: "True");
+        notificationTitle: 'MQTT Connected', notificationText: formattedDate);
     gsendPort?.send("MQTT Connected");
     print('MQTT::Mosquitto client connected....');
     _client!.subscribe(_topic!, MqttQos.atLeastOnce);
@@ -137,19 +139,12 @@ class MQTTManager {
       print('MQTT MSG: topic is <${c[0].topic}>, payload is <-- $pt -->');
       print('');
 
-      // FlutterForegroundTask.updateService(
-      //     notificationTitle: 'onConnected',
-      //     notificationText: "${gsendPort.hashCode}:$pt");
-
-      var now = DateTime.now();
-      var formatter = DateFormat.MMMd().add_jm();
-      String formattedDate = formatter.format(now);
-      print('Alarm:$formattedDate');
-
       //gsendPort.send(pt);
-      //gsendPort.send("connected");
+      gsendPort?.send("connected");
       dbHelper = DatabaseHelper.instance;
       if (c[0].topic.contains('alarm')) {
+        now = DateTime.now();
+        formattedDate = formatter.format(now);
         //gsendPort.send('Alarm:$pt : $formattedDate');
         FlutterForegroundTask.updateService(
             notificationTitle: 'MQTT Service: Alarm',
@@ -179,13 +174,9 @@ class MQTTManager {
 // topic is <gurupada/100/door>,
 //      pt =  {"data":"Open","gwid":"78e36d642ff0","name":"MainDoor","sensorid":"4ffe1a",
 //      "time":"12:47:01-17/07","type":"door"}
+// 3 "types" - door, esp32, temperture
   void _insertRaw(String log) async {
     Map<String, dynamic> log1 = jsonDecode(log);
-    if (log1['data'] == null) {
-      // this is to catch the GWID message
-      print('DB: null Data');
-      return;
-    }
     final id = await dbHelper!.insertRaw(log1['type'], log1);
     print("DB Raw: $id: ${log1['type']} => $log1");
   }

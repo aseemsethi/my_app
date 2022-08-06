@@ -26,6 +26,7 @@ const List<Device> devices = <Device>[
   Device(title: 'BackDoor', icon: Icons.door_back_door_outlined),
   Device(title: 'SideDoor', icon: Icons.door_sliding_outlined),
   Device(title: 'Temp', icon: Icons.thermostat_auto_outlined),
+  Device(title: 'Gateways', icon: Icons.router_outlined),
 ];
 
 class deviceIcons extends StatelessWidget {
@@ -33,11 +34,13 @@ class deviceIcons extends StatelessWidget {
       {Key? key,
       required this.choice,
       required this.door,
-      required this.temperature})
+      required this.temperature,
+      required this.esp32})
       : super(key: key);
   final Device choice;
   final String door;
   final String temperature;
+  final String esp32;
 
 //  Temperature line - Same for Door too.
 // Index [0]
@@ -58,6 +61,7 @@ class deviceIcons extends StatelessWidget {
   Widget build(BuildContext context) {
     List tempMap = temperature.multiSplit([': ', ", ", '{', '}']);
     List doorMap = door.multiSplit([': ', ", ", '{', '}']);
+    List esp32Map = esp32.multiSplit([': ', ", ", '{', '}']);
     //doorMap.forEach((element) => {print('IOT: $element')});
     //print("IOT: ${choice.title}");
 
@@ -85,47 +89,50 @@ class deviceIcons extends StatelessWidget {
                                     fontSize: 10))
                             : choice.title == 'MainDoor'
                                 ? Text(
-                                    "${doorMap[2]}, ${doorMap[6]}, ${doorMap[10]}",
+                                    "${doorMap[2]}, ${doorMap[6]}, ${doorMap[8]}",
                                     style: const TextStyle(
                                         color: Colors.blueAccent,
                                         fontWeight: FontWeight.w500,
                                         fontSize: 10))
-                                : const Text("TBD",
-                                    style: TextStyle(
-                                        color: Colors.blueAccent,
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 10)),
-                        trailing: choice.title == 'Temp'
-                            ? const Icon(
-                                Icons.check,
-                                color: Colors.green,
-                                size: 40.0,
-                              )
-                            : ((choice.title.contains('MainDoor')) &&
-                                    (doorMap[2].contains('Open')))
-                                ? const Icon(
-                                    Icons.lock_open_rounded,
-                                    color: Colors.green,
-                                    size: 40.0,
-                                  )
-                                : const Icon(
-                                    Icons.lock_outline_rounded,
-                                    color: Colors.green,
-                                    size: 40.0,
-                                  )),
-                    choice.title == 'Temp'
-                        ? Expanded(
-                            child: Icon(
-                            choice.icon,
-                            size: 70.0,
-                            color: Colors.green,
-                          ))
-                        : Expanded(
-                            child: Icon(
-                            choice.icon,
-                            size: 70.0,
-                            color: Colors.blueAccent,
-                          )),
+                                : choice.title == 'Gateways'
+                                    ? Text(
+                                        "${esp32Map[2]}, \n${esp32Map[6]}, \n at:${esp32Map[8]}",
+                                        style: const TextStyle(
+                                            color: Colors.blueAccent,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 10))
+                                    : const Text("TBD",
+                                        style: TextStyle(
+                                            color: Colors.blueAccent,
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: 10)),
+                        trailing:
+                            choice.title == 'Temp' || choice.title == 'Gateways'
+                                ? null
+                                // ? const Icon(
+                                //     Icons.check,
+                                //     color: Colors.green,
+                                //     size: 20.0,
+                                //   )
+                                : ((choice.title.contains('MainDoor')) &&
+                                        (doorMap[2].contains('Open')))
+                                    ? const Icon(
+                                        Icons.lock_open_rounded,
+                                        color: Colors.green,
+                                        size: 40.0,
+                                      )
+                                    : const Icon(
+                                        Icons.lock_outline_rounded,
+                                        color: Colors.green,
+                                        size: 40.0,
+                                      )),
+                    if (choice.title == 'Temp')
+                      Expanded(
+                          child: Icon(
+                        choice.icon,
+                        size: 70.0,
+                        color: Colors.green,
+                      ))
                   ]),
             )));
   }
@@ -150,9 +157,7 @@ class _IoTPageState extends State<IoTPage> {
 
     Future<List<Map<String, dynamic>>> getTemp() {
       print('IOT UI: getTemp');
-      //return Future.delayed(Duration(seconds: 2), () {
       return dbHelper!.queryTemp();
-      //});
     }
 
     /*24 is for notification bar on Android*/
@@ -190,9 +195,12 @@ class _IoTPageState extends State<IoTPage> {
                             children: List.generate(devices.length, (index) {
                               return Center(
                                 child: deviceIcons(
-                                    choice: devices[index],
-                                    door: snapshot.data![0]['log'],
-                                    temperature: snapshot.data![1]['log']),
+                                  // alphanetic order ? 0, 1, 2
+                                  choice: devices[index],
+                                  door: snapshot.data![0]['log'],
+                                  esp32: snapshot.data![1]['log'],
+                                  temperature: snapshot.data![2]['log'],
+                                ),
                               );
                             }))),
                     //Text('${snapshot.data![0]['log']}'),

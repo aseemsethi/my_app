@@ -55,11 +55,14 @@ class DatabaseHelper with ChangeNotifier {
         'INSERT INTO my_table(device, log) VALUES("temperature", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
     resp = await db.rawInsert(
         'INSERT INTO my_table(device, log) VALUES("door", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
-    print('DB: entering 2 rows');
+    resp = await db.rawInsert(
+        'INSERT INTO my_table(device, log) VALUES("esp32", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
+    print('DB: entering 3 rows');
   }
 
   // Helper methods
   clean() async {
+    print('dbhelper: removed DB');
     await File(path!).delete();
     await deleteDatabase(path!);
   }
@@ -74,7 +77,6 @@ class DatabaseHelper with ChangeNotifier {
 
   Future<int> insertRaw(String dev, Map<String, dynamic> log) async {
     Database? db = await instance.database;
-    //return await db!.insert(table, row);
     print('DB helper: insertRaw: $dev, $log');
     return await db!.rawUpdate(
         'UPDATE my_table SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
@@ -83,7 +85,7 @@ class DatabaseHelper with ChangeNotifier {
   Future<List<Map<String, dynamic>>> queryTemp() async {
     Database? db = await instance.database;
     var res = await db!.rawQuery(
-        'SELECT log FROM my_table where device = \'temperature\' OR device = \'door\'');
+        'SELECT log FROM my_table where device = \'temperature\' OR device = \'door\' OR device = \'esp32\'');
     print('DB: queryTemp: $res');
     print('DB: ${res[0]['log']}');
     return res; // res[0];

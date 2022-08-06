@@ -122,10 +122,10 @@ class _MqttPageState extends State<MqttPage> {
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w500,
-                                      fontSize: 20),
+                                      fontSize: 18),
                                 ))),
                         //const Spacer(flex: 1),
-                        SizedBox(width: 10),
+                        SizedBox(width: 8),
                         Expanded(
                             child: ElevatedButton(
                           onPressed: () {
@@ -139,11 +139,11 @@ class _MqttPageState extends State<MqttPage> {
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                         //const Spacer(flex: 1),
-                        SizedBox(width: 10),
+                        SizedBox(width: 8),
                         Expanded(
                             child: ElevatedButton(
                           onPressed: () {
@@ -155,11 +155,11 @@ class _MqttPageState extends State<MqttPage> {
                                 255, 252, 100, 54), // Background color
                           ),
                           child: Text(
-                            "Clean",
+                            "Clr-DB",
                             style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 20),
+                                fontSize: 18),
                           ),
                         )),
                       ])),
@@ -170,7 +170,7 @@ class _MqttPageState extends State<MqttPage> {
                       style: TextStyle(
                           color: Colors.blue,
                           fontWeight: FontWeight.w500,
-                          fontSize: 20)),
+                          fontSize: 18)),
                 ],
               ),
               Container(
