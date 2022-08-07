@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:mqtt_client/mqtt_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/mqttAppState.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'dart:isolate';
@@ -42,6 +43,11 @@ class MQTTManager {
         _username = username,
         _password = password,
         gsendPort = sendPort;
+
+  saveState(String state) async {
+    dbHelper = DatabaseHelper.instance;
+    dbHelper!.updateState(state);
+  }
 
   void initializeMQTTClient() {
     _client = MqttServerClient(_host!, _identifier!);
@@ -104,6 +110,7 @@ class MQTTManager {
     if (_client!.connectionStatus!.returnCode ==
         MqttConnectReturnCode.noneSpecified) {
       print('MQTT::OnDisconnected callback is solicited');
+      saveState("Disconnected");
     }
 
     //gsendPort.send("disconnected");
@@ -122,6 +129,7 @@ class MQTTManager {
     var formatter = DateFormat.MMMd().add_jm();
     var now = DateTime.now();
     String formattedDate = formatter.format(now);
+    saveState("Connected");
 
     FlutterForegroundTask.updateService(
         notificationTitle: 'MQTT Connected', notificationText: formattedDate);

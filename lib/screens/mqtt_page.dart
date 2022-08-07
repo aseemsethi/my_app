@@ -59,11 +59,7 @@ class _MqttPageState extends State<MqttPage> {
                   alignment: Alignment.center,
                   padding: const EdgeInsets.fromLTRB(10, 0, 0, 0),
                   child: Text(
-                    'Status: ' +
-                        currentAppState.mqttState.value
-                            .toString()
-                            .split('.')
-                            .last,
+                    'Status: ' + currentAppState.mqttState.value.toString(),
                     style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.w500,
@@ -142,7 +138,34 @@ class _MqttPageState extends State<MqttPage> {
                                 fontSize: 18),
                           ),
                         )),
-                        //const Spacer(flex: 1),
+                      ])),
+              Container(
+                  height: 100,
+                  padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+                  child: Row(
+                      //mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Expanded(
+                            child: ElevatedButton(
+                                onPressed: () async {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  List<Map<String, dynamic>> res =
+                                      await dbHelper!.getState();
+                                  currentAppState.mqttState.value =
+                                      res[0]['status'] ?? "Init";
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary:
+                                      Colors.greenAccent, // Background color
+                                ),
+                                child: Text(
+                                  "Status",
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 18),
+                                ))),
                         SizedBox(width: 8),
                         Expanded(
                             child: ElevatedButton(
@@ -163,16 +186,6 @@ class _MqttPageState extends State<MqttPage> {
                           ),
                         )),
                       ])),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Last Log',
-                      style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 18)),
-                ],
-              ),
               Container(
                 padding: const EdgeInsets.fromLTRB(20, 5, 20, 0),
                 child: Text(

@@ -67,6 +67,14 @@ class DatabaseHelper with ChangeNotifier {
             $columnLog TEXT NOT NULL
           )
           ''');
+    // Temperature Table
+    await db.execute('''
+          CREATE TABLE State (
+            state TEXT PRIMARY KEY,
+            status TEXT NOT NULL,
+            connTime TEXT NOT NULL
+          )
+          ''');
   }
 
   // Helper methods
@@ -74,6 +82,21 @@ class DatabaseHelper with ChangeNotifier {
     print('dbhelper: removed DB');
     //await File(path!).delete();
     await deleteDatabase(path!);
+  }
+
+  Future<int> updateState(String status) async {
+    String timeNow = "now";
+    Database? db = await instance.database;
+    print('DB helper: updateState: status');
+    return await db!.rawUpdate(
+        'REPLACE INTO State (state, status, connTime) VALUES (\'state\', \'$status\', \'$timeNow\')');
+  }
+
+  Future<List<Map<String, dynamic>>> getState() async {
+    Database? db = await instance.database;
+    var res = await db!.rawQuery('SELECT status FROM State');
+    print('DB: getState: ${res[0]['status']}');
+    return res;
   }
 
   Future<int> updateGw(String dev, Map<String, dynamic> log) async {
