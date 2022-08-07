@@ -68,7 +68,13 @@ class DatabaseHelper with ChangeNotifier {
           ''');
     // resp = await db.rawInsert(
     //     'INSERT INTO Gateways(device, log) VALUES("esp32", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
-    print('DB: entering 3 rows');
+    // Doors Table
+    await db.execute('''
+          CREATE TABLE Doors (
+            $columnName TEXT PRIMARY KEY,
+            $columnLog TEXT NOT NULL
+          )
+          ''');
   }
 
   // Helper methods
@@ -95,11 +101,16 @@ class DatabaseHelper with ChangeNotifier {
 
   Future<int> updateGw(String dev, Map<String, dynamic> log) async {
     Database? db = await instance.database;
-    print('DB helper: insertGw: $dev, $log');
-    // return await db!.rawUpdate(
-    //     'UPDATE Gateways SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
+    print('DB helper: updateGw: $dev, $log');
     return await db!.rawUpdate(
         'REPLACE INTO Gateways (device, log) VALUES (\'$dev\', \'$log\')');
+  }
+
+  Future<int> updateDoors(String dev, Map<String, dynamic> log) async {
+    Database? db = await instance.database;
+    print('DB helper: updateDoors: $dev, $log');
+    return await db!.rawUpdate(
+        'REPLACE INTO Doors (device, log) VALUES (\'$dev\', \'$log\')');
   }
 
   Future<List<Map<String, dynamic>>> queryTemp() async {
@@ -116,6 +127,13 @@ class DatabaseHelper with ChangeNotifier {
     Database? db = await instance.database;
     var res = await db!.rawQuery('SELECT log FROM Gateways');
     print('DB: getGwList: $res');
+    return res;
+  }
+
+  Future<List<Map<String, dynamic>>> getDoorList() async {
+    Database? db = await instance.database;
+    var res = await db!.rawQuery('SELECT log FROM Doors');
+    print('DB: getDoorList: $res');
     return res;
   }
 

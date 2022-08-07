@@ -22,9 +22,8 @@ class Device {
 }
 
 const List<Device> devices = <Device>[
-  Device(title: 'MainDoor', icon: Icons.door_front_door_outlined),
-  Device(title: 'BackDoor', icon: Icons.door_back_door_outlined),
-  Device(title: 'SideDoor', icon: Icons.door_sliding_outlined),
+  Device(title: 'Doors', icon: Icons.door_front_door_outlined),
+  Device(title: 'Windows', icon: Icons.door_front_door_outlined),
   Device(title: 'Temp', icon: Icons.thermostat_auto_outlined),
   Device(title: 'Gateways', icon: Icons.router_outlined),
 ];
@@ -33,15 +32,14 @@ class deviceIcons extends StatelessWidget {
   deviceIcons({
     Key? key,
     required this.choice,
-    required this.door,
     required this.temperature,
     required this.data,
   }) : super(key: key);
   final Device choice;
-  final String door;
   final String temperature;
   final List<Map<String, dynamic>>? data;
   String gwOutput = "";
+  String doorOutput = "";
 
 //  Temperature line - Same for Door too.
 // Index [0]
@@ -61,8 +59,7 @@ class deviceIcons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List tempMap = temperature.multiSplit([': ', ", ", '{', '}']);
-    List doorMap = door.multiSplit([': ', ", ", '{', '}']);
-    //doorMap.forEach((element) => {print('IOT: $element')});
+    //List doorMap = door.multiSplit([': ', ", ", '{', '}']);
     //print("IOT: ${choice.title}");
     print("Build.................................................");
     for (var i = 0; i < data!.length; i++) {
@@ -72,7 +69,9 @@ class deviceIcons extends StatelessWidget {
       print('Build...$tmp2..${tmp2.length}');
       if ((tmp2.length >= 10) && (tmp2[4] == 'esp32')) {
         gwOutput = "${gwOutput + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[8]}\n";
-      } else if ((tmp2.length >= 12) && (tmp2[11] == 'door')) {
+      } else if ((tmp2.length >= 12) && (tmp2[12] == 'door')) {
+        doorOutput =
+            "${doorOutput + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[8]}\n";
       } else if ((tmp2.length >= 14) && (tmp2[12] == 'temperature')) {}
     }
 
@@ -98,9 +97,10 @@ class deviceIcons extends StatelessWidget {
                                     color: Colors.blueAccent,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 10))
-                            : choice.title == 'MainDoor'
+                            : choice.title == 'Doors'
                                 ? Text(
-                                    "${doorMap[2]}, ${doorMap[6]}, ${doorMap[8]}",
+                                    //"${doorMap[2]}, ${doorMap[6]}, ${doorMap[8]}",
+                                    doorOutput,
                                     style: const TextStyle(
                                         color: Colors.blueAccent,
                                         fontWeight: FontWeight.w500,
@@ -124,8 +124,8 @@ class deviceIcons extends StatelessWidget {
                                 //     color: Colors.green,
                                 //     size: 20.0,
                                 //   )
-                                : ((choice.title.contains('MainDoor')) &&
-                                        (doorMap[2].contains('Open')))
+                                : ((choice.title.contains('Doors')) &&
+                                        (doorOutput.contains('Open')))
                                     ? const Icon(
                                         Icons.lock_open_rounded,
                                         color: Colors.green,
@@ -173,8 +173,14 @@ class _IoTPageState extends State<IoTPage> {
 
       Future<List<Map<String, dynamic>>> dbList = dbHelper.getGwList();
       List<Map<String, dynamic>> dbList1 = await dbList;
-      List<Map<String, dynamic>> newList = List.from(tempList1)
-        ..addAll(dbList1);
+
+      Future<List<Map<String, dynamic>>> doorList = dbHelper.getDoorList();
+      List<Map<String, dynamic>> doorList1 = await doorList;
+
+      // List<Map<String, dynamic>> newList = List.from(tempList1)
+      //   ..addAll(dbList1);
+      var newList = [...tempList1, ...dbList1, ...doorList1];
+
       print('getTelemetry: : $newList');
       return newList;
     }
@@ -214,9 +220,7 @@ class _IoTPageState extends State<IoTPage> {
                             children: List.generate(devices.length, (index) {
                               return Center(
                                 child: deviceIcons(
-                                  // alphanetic order ? 0, 1, 2
                                   choice: devices[index],
-                                  door: snapshot.data![0]['log'],
                                   temperature: snapshot.data![2]['log'],
                                   data: snapshot.data,
                                 ),
