@@ -58,6 +58,14 @@ class deviceIcons extends StatelessWidget {
 //  type
 //  temperature
 
+// Alarm - topic: <gurupada/100/alarm> pt = MainDoor:Open
+// topic is <gurupada/100/door>,
+// pt = {"gwid":"78e36d642ff0","type":"esp32", "ip":"192.168.68.127", "time":"15:09:28-12/07"}
+// pt = {"data":"T:25.70:H:80.00","gwid":"78e36d642ff0","name":"DG Room",
+//       "sensorid":"54985c","time":"15:09:29-12/07","type":"temperature"}
+// pt =  {"data":"Open","gwid":"78e36d642ff0","name":"MainDoor","sensorid":"4ffe1a",
+//      "time":"12:47:01-17/07","type":"door"}
+// 3 "types" - door, esp32, temperture
   @override
   Widget build(BuildContext context) {
     //List doorMap = door.multiSplit([': ', ", ", '{', '}']);
