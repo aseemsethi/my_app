@@ -82,7 +82,7 @@ class deviceIcons extends StatelessWidget {
         gwIndex++;
       } else if ((tmp2.length >= 12) && (tmp2[12] == 'door')) {
         doorOutput =
-            "${doorOutput + doorIndex.toString() + ": " + tmp2[6] + "\n" + tmp2[2] + "\n" + tmp2[8]}\n";
+            "${doorOutput + doorIndex.toString() + ": " + tmp2[6] + "\n" + tmp2[2] + "\n" + tmp2[8] + "\nat " + tmp2[10]}\n";
         doorIndex++;
       } else if ((tmp2.length >= 14) && (tmp2[12] == 'temperature')) {
         tempOutput =
