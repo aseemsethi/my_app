@@ -43,22 +43,9 @@ class DatabaseHelper with ChangeNotifier {
 
   //$columnId INTEGER PRIMARY KEY,
   // SQL code to create the database table
+  //  DB initDatabase: path to DB:/data/user/0/com.example.my_app/app_flutter/mqtt.db
   Future _onCreate(Database db, int version) async {
-    await db.execute('''
-          CREATE TABLE $table (
-            $columnName TEXT PRIMARY KEY,
-            $columnLog TEXT NOT NULL
-          )
-          ''');
     print('DB: onCreate called.....');
-    var resp = await db.rawInsert(
-        'INSERT INTO my_table(device, log) VALUES("temperature", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
-    resp = await db.rawInsert(
-        'INSERT INTO my_table(device, log) VALUES("door", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
-    resp = await db.rawInsert(
-        'INSERT INTO my_table(device, log) VALUES("esp32", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
-    print('DB: entering 3 rows');
-
     // Gatweays Table
     await db.execute('''
           CREATE TABLE Gateways (
@@ -66,11 +53,16 @@ class DatabaseHelper with ChangeNotifier {
             $columnLog TEXT NOT NULL
           )
           ''');
-    // resp = await db.rawInsert(
-    //     'INSERT INTO Gateways(device, log) VALUES("esp32", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
     // Doors Table
     await db.execute('''
           CREATE TABLE Doors (
+            $columnName TEXT PRIMARY KEY,
+            $columnLog TEXT NOT NULL
+          )
+          ''');
+    // Temperature Table
+    await db.execute('''
+          CREATE TABLE Temp (
             $columnName TEXT PRIMARY KEY,
             $columnLog TEXT NOT NULL
           )
@@ -82,21 +74,6 @@ class DatabaseHelper with ChangeNotifier {
     print('dbhelper: removed DB');
     //await File(path!).delete();
     await deleteDatabase(path!);
-  }
-
-  // Inserts a row in the database where each key in the Map is a column name
-  // and the value is the column value. The return value is the id of the
-  // inserted row.
-  Future<int> insert(Map<String, dynamic> row) async {
-    Database? db = await instance.database;
-    return await db!.insert(table, row);
-  }
-
-  Future<int> insertRaw(String dev, Map<String, dynamic> log) async {
-    Database? db = await instance.database;
-    print('DB helper: insertRaw: $dev, $log');
-    return await db!.rawUpdate(
-        'UPDATE my_table SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
   }
 
   Future<int> updateGw(String dev, Map<String, dynamic> log) async {
@@ -113,6 +90,13 @@ class DatabaseHelper with ChangeNotifier {
         'REPLACE INTO Doors (device, log) VALUES (\'$dev\', \'$log\')');
   }
 
+  Future<int> updateTemp(String dev, Map<String, dynamic> log) async {
+    Database? db = await instance.database;
+    print('DB helper: updateDoors: $dev, $log');
+    return await db!.rawUpdate(
+        'REPLACE INTO Temp (device, log) VALUES (\'$dev\', \'$log\')');
+  }
+
   Future<List<Map<String, dynamic>>> queryTemp() async {
     Database? db = await instance.database;
     var res = await db!.rawQuery(
@@ -126,14 +110,21 @@ class DatabaseHelper with ChangeNotifier {
   Future<List<Map<String, dynamic>>> getGwList() async {
     Database? db = await instance.database;
     var res = await db!.rawQuery('SELECT log FROM Gateways');
-    print('DB: getGwList: $res');
+    //print('DB: getGwList: $res');
     return res;
   }
 
   Future<List<Map<String, dynamic>>> getDoorList() async {
     Database? db = await instance.database;
     var res = await db!.rawQuery('SELECT log FROM Doors');
-    print('DB: getDoorList: $res');
+    //print('DB: getDoorList: $res');
+    return res;
+  }
+
+  Future<List<Map<String, dynamic>>> getTempList() async {
+    Database? db = await instance.database;
+    var res = await db!.rawQuery('SELECT log FROM Temp');
+    //print('DB: getTempList: $res');
     return res;
   }
 
@@ -159,21 +150,5 @@ class DatabaseHelper with ChangeNotifier {
     Database? db = await instance.database;
     return Sqflite.firstIntValue(
         await db!.rawQuery('SELECT COUNT(*) FROM $table'));
-  }
-
-  // We are assuming here that the id column in the map is set. The other
-  // column values will be used to update the row.
-  Future<int> update(Map<String, dynamic> row) async {
-    Database? db = await instance.database;
-    int id = row[columnId];
-    return await db!
-        .update(table, row, where: '$columnId = ?', whereArgs: [id]);
-  }
-
-  // Deletes the row specified by the id. The number of affected rows is
-  // returned. This should be 1 as long as the row exists.
-  Future<int> delete(int id) async {
-    Database? db = await instance.database;
-    return await db!.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
 }

@@ -158,15 +158,6 @@ class MQTTManager {
         'MQTT::OnConnected client callback - Client connection was sucessful');
   }
 
-  void _insert(String dev, String log) async {
-    //row to insert
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnName: dev,
-      DatabaseHelper.columnLog: log,
-    };
-    final id = await dbHelper!.insert(row);
-  }
-
 // topic: <gurupada/100/alarm> pt = MainDoor:Open
 // topic is <gurupada/100/door>,
 // pt = {"gwid":"78e36d642ff0","type":"esp32", "ip":"192.168.68.127", "time":"15:09:28-12/07"}
@@ -176,16 +167,16 @@ class MQTTManager {
 //      "time":"12:47:01-17/07","type":"door"}
 // 3 "types" - door, esp32, temperture
   void _insertRaw(String log) async {
-    var id;
     Map<String, dynamic> log1 = jsonDecode(log);
     if (log1['type'] == "esp32") {
       dbHelper!.updateGw(log1['gwid'], log1);
     } else if (log1['type'] == "door") {
       dbHelper!.updateDoors(log1['sensorid'], log1);
     } else {
-      id = await dbHelper!.insertRaw(log1['type'], log1);
+      dbHelper!.updateTemp(log1['sensorid'], log1);
+      //id = await dbHelper!.insertRaw(log1['type'], log1);
     }
-    print("DB _insertRaw: $id: ${log1['type']} => $log1");
+    print("DB _insertRaw: ${log1['type']} => $log1");
   }
 
   void _query() async {
@@ -193,23 +184,5 @@ class MQTTManager {
     final allRows = await dbHelper!.queryAllRows();
     print('DB query all rows: $count');
     allRows.forEach(print);
-  }
-
-  void _update() async {
-    // row to update
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnId: 1,
-      DatabaseHelper.columnName: 'Mary',
-      DatabaseHelper.columnLog: 32
-    };
-    final rowsAffected = await dbHelper!.update(row);
-    print('DB updated $rowsAffected row(s)');
-  }
-
-  void _delete() async {
-    // Assuming that the number of rows is the id for the last row.
-    final id = await dbHelper!.queryRowCount();
-    final rowsDeleted = await dbHelper!.delete(id!);
-    print('DB deleted $rowsDeleted row(s): row $id');
   }
 }

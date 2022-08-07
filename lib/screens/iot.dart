@@ -32,14 +32,16 @@ class deviceIcons extends StatelessWidget {
   deviceIcons({
     Key? key,
     required this.choice,
-    required this.temperature,
     required this.data,
   }) : super(key: key);
   final Device choice;
-  final String temperature;
   final List<Map<String, dynamic>>? data;
   String gwOutput = "";
   String doorOutput = "";
+  String tempOutput = "";
+  int doorIndex = 1;
+  int gwIndex = 1;
+  int tempIndex = 1;
 
 //  Temperature line - Same for Door too.
 // Index [0]
@@ -58,7 +60,6 @@ class deviceIcons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List tempMap = temperature.multiSplit([': ', ", ", '{', '}']);
     //List doorMap = door.multiSplit([': ', ", ", '{', '}']);
     //print("IOT: ${choice.title}");
     print("Build.................................................");
@@ -68,11 +69,18 @@ class deviceIcons extends StatelessWidget {
       List tmp2 = tmp1.multiSplit([': ', ", ", '{', '}']);
       print('Build...$tmp2..${tmp2.length}');
       if ((tmp2.length >= 10) && (tmp2[4] == 'esp32')) {
-        gwOutput = "${gwOutput + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[8]}\n";
+        gwOutput =
+            "${gwOutput + gwIndex.toString() + ": " + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[8]}\n";
+        gwIndex++;
       } else if ((tmp2.length >= 12) && (tmp2[12] == 'door')) {
         doorOutput =
-            "${doorOutput + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[8]}\n";
-      } else if ((tmp2.length >= 14) && (tmp2[12] == 'temperature')) {}
+            "${doorOutput + doorIndex.toString() + ": " + tmp2[6] + "\n" + tmp2[2] + "\n" + tmp2[8]}\n";
+        doorIndex++;
+      } else if ((tmp2.length >= 14) && (tmp2[12] == 'temperature')) {
+        tempOutput =
+            "${tempOutput + tempIndex.toString() + ": " + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[10]}\n";
+        tempIndex++;
+      }
     }
 
     return Card(
@@ -91,16 +99,13 @@ class deviceIcons extends StatelessWidget {
                                 fontWeight: FontWeight.w500,
                                 fontSize: 12)),
                         subtitle: choice.title == 'Temp'
-                            ? Text(
-                                "${tempMap[2]}, ${tempMap[6]}, ${tempMap[10]}",
+                            ? Text(tempOutput,
                                 style: const TextStyle(
                                     color: Colors.blueAccent,
                                     fontWeight: FontWeight.w500,
                                     fontSize: 10))
                             : choice.title == 'Doors'
-                                ? Text(
-                                    //"${doorMap[2]}, ${doorMap[6]}, ${doorMap[8]}",
-                                    doorOutput,
+                                ? Text(doorOutput,
                                     style: const TextStyle(
                                         color: Colors.blueAccent,
                                         fontWeight: FontWeight.w500,
@@ -166,16 +171,19 @@ class _IoTPageState extends State<IoTPage> {
     print('iot: build..');
 
     Future<List<Map<String, dynamic>>> getTelemetry() async {
-      Future<List<Map<String, dynamic>>> tempList;
+      //Future<List<Map<String, dynamic>>> tempList;
       print('IOT UI: getTelemetry');
-      tempList = dbHelper!.queryTemp();
-      List<Map<String, dynamic>> tempList1 = await tempList;
+      // tempList = dbHelper!.queryTemp();
+      // List<Map<String, dynamic>> tempList1 = await tempList;
 
-      Future<List<Map<String, dynamic>>> dbList = dbHelper.getGwList();
+      Future<List<Map<String, dynamic>>> dbList = dbHelper!.getGwList();
       List<Map<String, dynamic>> dbList1 = await dbList;
 
       Future<List<Map<String, dynamic>>> doorList = dbHelper.getDoorList();
       List<Map<String, dynamic>> doorList1 = await doorList;
+
+      Future<List<Map<String, dynamic>>> tempList = dbHelper.getTempList();
+      List<Map<String, dynamic>> tempList1 = await tempList;
 
       // List<Map<String, dynamic>> newList = List.from(tempList1)
       //   ..addAll(dbList1);
@@ -221,7 +229,6 @@ class _IoTPageState extends State<IoTPage> {
                               return Center(
                                 child: deviceIcons(
                                   choice: devices[index],
-                                  temperature: snapshot.data![2]['log'],
                                   data: snapshot.data,
                                 ),
                               );
