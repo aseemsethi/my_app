@@ -30,17 +30,18 @@ const List<Device> devices = <Device>[
 ];
 
 class deviceIcons extends StatelessWidget {
-  deviceIcons(
-      {Key? key,
-      required this.choice,
-      required this.door,
-      required this.temperature,
-      required this.esp32})
-      : super(key: key);
+  deviceIcons({
+    Key? key,
+    required this.choice,
+    required this.door,
+    required this.temperature,
+    required this.data,
+  }) : super(key: key);
   final Device choice;
   final String door;
   final String temperature;
-  final String esp32;
+  final List<Map<String, dynamic>>? data;
+  String gwOutput = "";
 
 //  Temperature line - Same for Door too.
 // Index [0]
@@ -61,12 +62,22 @@ class deviceIcons extends StatelessWidget {
   Widget build(BuildContext context) {
     List tempMap = temperature.multiSplit([': ', ", ", '{', '}']);
     List doorMap = door.multiSplit([': ', ", ", '{', '}']);
-    List esp32Map = esp32.multiSplit([': ', ", ", '{', '}']);
     //doorMap.forEach((element) => {print('IOT: $element')});
     //print("IOT: ${choice.title}");
+    print("Build.................................................");
+    for (var i = 0; i < data!.length; i++) {
+      //print('Build...${data![i]['log']}');
+      String tmp1 = data![i]['log'];
+      List tmp2 = tmp1.multiSplit([': ', ", ", '{', '}']);
+      print('Build...$tmp2..${tmp2.length}');
+      if ((tmp2.length >= 10) && (tmp2[4] == 'esp32')) {
+        gwOutput = "${gwOutput + tmp2[2] + "\n" + tmp2[6] + "\n" + tmp2[8]}\n";
+      } else if ((tmp2.length >= 12) && (tmp2[11] == 'door')) {
+      } else if ((tmp2.length >= 14) && (tmp2[12] == 'temperature')) {}
+    }
 
     return Card(
-        color: Color.fromARGB(194, 251, 249, 154),
+        color: const Color.fromARGB(194, 251, 249, 154),
         elevation: 10.0,
         child: InkWell(
             onTap: () {},
@@ -95,8 +106,7 @@ class deviceIcons extends StatelessWidget {
                                         fontWeight: FontWeight.w500,
                                         fontSize: 10))
                                 : choice.title == 'Gateways'
-                                    ? Text(
-                                        "${esp32Map[2]}, \n${esp32Map[6]}, \n at:${esp32Map[8]}",
+                                    ? Text(gwOutput,
                                         style: const TextStyle(
                                             color: Colors.blueAccent,
                                             fontWeight: FontWeight.w500,
@@ -155,13 +165,22 @@ class _IoTPageState extends State<IoTPage> {
     dbHelper = context.watch<DatabaseHelper>(); // rebuild when dbHelper changes
     print('iot: build..');
 
-    Future<List<Map<String, dynamic>>> getTemp() {
-      print('IOT UI: getTemp');
-      return dbHelper!.queryTemp();
+    Future<List<Map<String, dynamic>>> getTelemetry() async {
+      Future<List<Map<String, dynamic>>> tempList;
+      print('IOT UI: getTelemetry');
+      tempList = dbHelper!.queryTemp();
+      List<Map<String, dynamic>> tempList1 = await tempList;
+
+      Future<List<Map<String, dynamic>>> dbList = dbHelper.getGwList();
+      List<Map<String, dynamic>> dbList1 = await dbList;
+      List<Map<String, dynamic>> newList = List.from(tempList1)
+        ..addAll(dbList1);
+      print('getTelemetry: : $newList');
+      return newList;
     }
 
     /*24 is for notification bar on Android*/
-    final double itemHeight = (size.height - kToolbarHeight - 24) / 4;
+    final double itemHeight = (size.height - kToolbarHeight - 24) / 5;
     final double itemWidth = size.width / 3;
     //return FutureBuilder(builder: builder) {
     return Scaffold(
@@ -198,8 +217,8 @@ class _IoTPageState extends State<IoTPage> {
                                   // alphanetic order ? 0, 1, 2
                                   choice: devices[index],
                                   door: snapshot.data![0]['log'],
-                                  esp32: snapshot.data![1]['log'],
                                   temperature: snapshot.data![2]['log'],
+                                  data: snapshot.data,
                                 ),
                               );
                             }))),
@@ -207,7 +226,7 @@ class _IoTPageState extends State<IoTPage> {
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
-                          //getTemp();
+                          //getTelemetry();
                         });
                       },
                       child: const Text("Refresh"),
@@ -219,7 +238,7 @@ class _IoTPageState extends State<IoTPage> {
           }
           return const CircularProgressIndicator();
         },
-        future: getTemp(),
+        future: getTelemetry(),
       ),
     );
   }

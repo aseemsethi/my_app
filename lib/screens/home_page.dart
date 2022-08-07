@@ -52,7 +52,12 @@ class homeIcons extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     ListTile(
-                      title: Text(choice.title),
+                      title: Text(choice.title,
+                          style: const TextStyle(
+                              fontStyle: FontStyle.italic,
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14)),
                       //subtitle: Text("Subheading"),
                       trailing: Icon(Icons.details),
                     ),

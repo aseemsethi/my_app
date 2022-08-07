@@ -58,12 +58,23 @@ class DatabaseHelper with ChangeNotifier {
     resp = await db.rawInsert(
         'INSERT INTO my_table(device, log) VALUES("esp32", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
     print('DB: entering 3 rows');
+
+    // Gatweays Table
+    await db.execute('''
+          CREATE TABLE Gateways (
+            $columnName TEXT PRIMARY KEY,
+            $columnLog TEXT NOT NULL
+          )
+          ''');
+    // resp = await db.rawInsert(
+    //     'INSERT INTO Gateways(device, log) VALUES("esp32", "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10")');
+    print('DB: entering 3 rows');
   }
 
   // Helper methods
   clean() async {
     print('dbhelper: removed DB');
-    await File(path!).delete();
+    //await File(path!).delete();
     await deleteDatabase(path!);
   }
 
@@ -82,13 +93,30 @@ class DatabaseHelper with ChangeNotifier {
         'UPDATE my_table SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
   }
 
+  Future<int> updateGw(String dev, Map<String, dynamic> log) async {
+    Database? db = await instance.database;
+    print('DB helper: insertGw: $dev, $log');
+    // return await db!.rawUpdate(
+    //     'UPDATE Gateways SET $columnLog = \'$log\' WHERE $columnName = \'$dev\'');
+    return await db!.rawUpdate(
+        'REPLACE INTO Gateways (device, log) VALUES (\'$dev\', \'$log\')');
+  }
+
   Future<List<Map<String, dynamic>>> queryTemp() async {
     Database? db = await instance.database;
     var res = await db!.rawQuery(
         'SELECT log FROM my_table where device = \'temperature\' OR device = \'door\' OR device = \'esp32\'');
     print('DB: queryTemp: $res');
-    print('DB: ${res[0]['log']}');
-    return res; // res[0];
+    print('DB: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++');
+    //print('DB: ${res[0]['log']}');
+    return res;
+  }
+
+  Future<List<Map<String, dynamic>>> getGwList() async {
+    Database? db = await instance.database;
+    var res = await db!.rawQuery('SELECT log FROM Gateways');
+    print('DB: getGwList: $res');
+    return res;
   }
 
   Future<Map<String, dynamic>> queryDoor() async {
@@ -96,7 +124,7 @@ class DatabaseHelper with ChangeNotifier {
     var res =
         await db!.rawQuery('SELECT log FROM my_table where device = \'door\'');
     print('DB: queryDoor: $res');
-    print('DB: ${res[0]['log']}');
+    //print('DB: ${res[0]['log']}');
     return res[0];
   }
 

@@ -151,7 +151,7 @@ class MQTTManager {
             notificationText: '$pt : $formattedDate');
       } else {
         _insertRaw(pt);
-        _query();
+        //_query();
       }
     });
     print(
@@ -176,9 +176,14 @@ class MQTTManager {
 //      "time":"12:47:01-17/07","type":"door"}
 // 3 "types" - door, esp32, temperture
   void _insertRaw(String log) async {
+    var id;
     Map<String, dynamic> log1 = jsonDecode(log);
-    final id = await dbHelper!.insertRaw(log1['type'], log1);
-    print("DB Raw: $id: ${log1['type']} => $log1");
+    if (log1['type'] == "esp32") {
+      dbHelper!.updateGw(log1['gwid'], log1);
+    } else {
+      id = await dbHelper!.insertRaw(log1['type'], log1);
+    }
+    print("DB _insertRaw: $id: ${log1['type']} => $log1");
   }
 
   void _query() async {
