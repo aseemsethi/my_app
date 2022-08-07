@@ -101,21 +101,20 @@ class MQTTManager {
   /// The unsolicited disconnect callback
   void onDisconnected() {
     print('MQTT::OnDisconnected client callback - Client disconnection');
-    FlutterForegroundTask.updateService(
-        notificationTitle: 'MQTT Disconnected', notificationText: "True");
     if (_client!.connectionStatus!.returnCode ==
         MqttConnectReturnCode.noneSpecified) {
       print('MQTT::OnDisconnected callback is solicited');
     }
-    print(
-        'MQTT::OnDisconnected callback is not solicited......retry connect.....');
+
     //gsendPort.send("disconnected");
-    wait2seconds();
-    connect();
+    waitAndConnect();
   }
 
-  wait2seconds() async {
-    await Future.delayed(const Duration(seconds: 4), () {});
+  waitAndConnect() async {
+    await Future.delayed(const Duration(seconds: 4), () {
+      print('MQTT::OnDisconnected not solicited......retry connect.....');
+      connect();
+    });
   }
 
   /// The successful connect callback
