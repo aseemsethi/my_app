@@ -55,7 +55,7 @@ class MQTTManager {
     _client!.keepAlivePeriod = 20;
     _client!.onDisconnected = onDisconnected;
     _client!.secure = false;
-    _client!.logging(on: false);
+    _client!.logging(on: true);
 
     /// Add the successful connection callback
     _client!.onConnected = onConnected;
@@ -106,6 +106,12 @@ class MQTTManager {
 
   /// The unsolicited disconnect callback
   void onDisconnected() {
+    var formatter = DateFormat.MMMd().add_jm();
+    var now = DateTime.now();
+    String formattedDate = formatter.format(now);
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'MQTT Disconnected',
+        notificationText: formattedDate);
     print('MQTT::OnDisconnected client callback - Client disconnection');
     if (_client!.connectionStatus!.returnCode ==
         MqttConnectReturnCode.noneSpecified) {

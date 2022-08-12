@@ -231,7 +231,7 @@ class _MqttPageState extends State<MqttPage> {
         playSound: false,
       ),
       foregroundTaskOptions: const ForegroundTaskOptions(
-        interval: 5000,
+        interval: 5000 * 12 * 60,
         autoRunOnBoot: true,
         allowWifiLock: true,
       ),
@@ -399,11 +399,9 @@ class MyTaskHandler extends TaskHandler {
     //     notificationText: 'eventCount: $_eventCount');
 
     // Send data to the main isolate.
-    print(
-        'MyTaskHandler: SendPort..sending event data: sendPort: ${sendPort.hashCode}');
-    sendPort?.send(_eventCount);
-    manager.gsendPort = sendPort!;
-
+    print('MyTaskHandler: onEvent..$_eventCount');
+    // sendPort?.send(_eventCount);
+    // manager.gsendPort = sendPort!;
     _eventCount++;
   }
 
@@ -448,10 +446,10 @@ class MyTaskHandler extends TaskHandler {
       String? user, String? passwd, String? topic, SendPort? sendPort) {
     print('Configure and Connect...');
     String osPrefix = 'Flutter_iOS';
-    if (Platform.isAndroid) {
-      osPrefix = generateRandomString(10); // 'Flutter_Android';
-      print('Android platform');
-    }
+    //if (Platform.isAndroid) {
+    osPrefix = generateRandomString(10); // 'Flutter_Android';
+    //  print('Android platform');
+    //}
     saveData(user, passwd, topic);
     manager = MQTTManager(
         host: '52.66.70.168',
