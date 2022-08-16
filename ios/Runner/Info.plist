@@ -39,15 +39,11 @@
 	<true/>
 	<key>NSAppTransportSecurity</key>
 	<dict/>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Program requires this for WiFi info</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Program requires this for WiFi info</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Program requires this for WiFi info</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
