@@ -454,7 +454,8 @@ class MyTaskHandler extends TaskHandler {
     }
     saveData(user, passwd, topic);
     manager = MQTTManager(
-        host: '52.66.70.168',
+        //host: '52.66.70.168',
+        host: '13.233.201.232',
         topic: topic, // 'gurupada/100/#',
         identifier: osPrefix,
         username: user,
