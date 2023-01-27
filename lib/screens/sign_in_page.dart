@@ -34,67 +34,67 @@ class SignInPage extends StatelessWidget {
             style: TextStyle(color: Constants.kDarkGreyColor),
           ),
           GoogleSignIn(),
-          buildRowDivider(size: size),
-          Padding(padding: EdgeInsets.only(bottom: size.height * 0.02)),
-          SizedBox(
-            width: size.width * 0.8,
-            child: TextField(
-                decoration: InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                    enabledBorder: border,
-                    focusedBorder: border)),
-          ),
-          SizedBox(
-            height: size.height * 0.01,
-          ),
-          SizedBox(
-            width: size.width * 0.8,
-            child: TextField(
-              decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
-                enabledBorder: border,
-                focusedBorder: border,
-                suffixIcon: Padding(
-                  child: FaIcon(
-                    FontAwesomeIcons.eye,
-                    size: 15,
-                  ),
-                  padding: EdgeInsets.only(top: 15, left: 15),
-                ),
-              ),
-            ),
-          ),
-          Padding(padding: EdgeInsets.only(bottom: size.height * 0.05)),
-          SizedBox(
-            width: size.width * 0.8,
-            child: OutlinedButton(
-              onPressed: () async {},
-              child: Text(Constants.textSignIn),
-              style: ButtonStyle(
-                  foregroundColor:
-                      MaterialStateProperty.all<Color>(Constants.kPrimaryColor),
-                  backgroundColor:
-                      MaterialStateProperty.all<Color>(Constants.kBlackColor),
-                  side: MaterialStateProperty.all<BorderSide>(BorderSide.none)),
-            ),
-          ),
-          RichText(
-              textAlign: TextAlign.center,
-              text: TextSpan(children: <TextSpan>[
-                TextSpan(
-                    text: Constants.textAcc,
-                    style: TextStyle(
-                      color: Constants.kDarkGreyColor,
-                    )),
-                TextSpan(
-                    text: Constants.textSignUp,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Constants.kDarkBlueColor,
-                    )),
-              ])),
+          // buildRowDivider(size: size),
+          // Padding(padding: EdgeInsets.only(bottom: size.height * 0.02)),
+          // SizedBox(
+          //   width: size.width * 0.8,
+          //   child: TextField(
+          //       decoration: InputDecoration(
+          //           contentPadding:
+          //               EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+          //           enabledBorder: border,
+          //           focusedBorder: border)),
+          // ),
+          // SizedBox(
+          //   height: size.height * 0.01,
+          // ),
+          // SizedBox(
+          //   width: size.width * 0.8,
+          //   child: TextField(
+          //     decoration: InputDecoration(
+          //       contentPadding:
+          //           EdgeInsets.symmetric(vertical: 15.0, horizontal: 10.0),
+          //       enabledBorder: border,
+          //       focusedBorder: border,
+          //       suffixIcon: Padding(
+          //         child: FaIcon(
+          //           FontAwesomeIcons.eye,
+          //           size: 15,
+          //         ),
+          //         padding: EdgeInsets.only(top: 15, left: 15),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // Padding(padding: EdgeInsets.only(bottom: size.height * 0.05)),
+          // SizedBox(
+          //   width: size.width * 0.8,
+          //   child: OutlinedButton(
+          //     onPressed: () async {},
+          //     child: Text(Constants.textSignIn),
+          //     style: ButtonStyle(
+          //         foregroundColor:
+          //             MaterialStateProperty.all<Color>(Constants.kPrimaryColor),
+          //         backgroundColor:
+          //             MaterialStateProperty.all<Color>(Constants.kBlackColor),
+          //         side: MaterialStateProperty.all<BorderSide>(BorderSide.none)),
+          //   ),
+          // ),
+          // RichText(
+          //     textAlign: TextAlign.center,
+          //     text: TextSpan(children: <TextSpan>[
+          //       TextSpan(
+          //           text: Constants.textAcc,
+          //           style: TextStyle(
+          //             color: Constants.kDarkGreyColor,
+          //           )),
+          //       TextSpan(
+          //           text: Constants.textSignUp,
+          //           style: TextStyle(
+          //             fontWeight: FontWeight.bold,
+          //             color: Constants.kDarkBlueColor,
+          //           )),
+          //     ])),
         ])));
   }
 

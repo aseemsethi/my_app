@@ -1,6 +1,8 @@
 import 'dart:io' show Platform;
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../services/mqtt_manager.dart';
 import '../utils/mqttAppState.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +11,7 @@ import 'dart:isolate';
 import '../utils/db_helper.dart';
 import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 
 class MqttPage extends StatefulWidget {
   @override
@@ -228,7 +231,7 @@ class _MqttPageState extends State<MqttPage> {
       ),
       iosNotificationOptions: const IOSNotificationOptions(
         showNotification: true,
-        playSound: false,
+        playSound: true,
       ),
       foregroundTaskOptions: const ForegroundTaskOptions(
         interval: 5000,
@@ -265,18 +268,24 @@ class _MqttPageState extends State<MqttPage> {
     await FlutterForegroundTask.saveData(
         key: 'pwd', value: passwordController.text);
 
-    ReceivePort? receivePort;
+    bool reqResult;
     if (await FlutterForegroundTask.isRunningService) {
-      receivePort = await FlutterForegroundTask.restartService();
+      reqResult = await FlutterForegroundTask.restartService();
       print('Restarting foreground service');
     } else {
       print('Starting foreground service');
-      receivePort = await FlutterForegroundTask.startService(
+      reqResult = await FlutterForegroundTask.startService(
         notificationTitle: 'MQTT Service: running',
         notificationText: 'Tap to return to the app',
         callback: startCallback,
       );
     }
+
+    ReceivePort? receivePort;
+    if (reqResult) {
+      receivePort = await FlutterForegroundTask.receivePort;
+    }
+
     return _registerReceivePort(receivePort, currentAppState);
   }
 
@@ -357,6 +366,25 @@ void startCallback() {
   FlutterForegroundTask.setTaskHandler(MyTaskHandler());
 }
 
+void getLocationUpdates() {
+  final LocationSettings locationSettings = LocationSettings(
+    accuracy: LocationAccuracy.high,
+    distanceFilter: 0,
+    timeLimit: Duration(seconds: 10),
+    //showBackgroundLocationIndicator: true,
+  );
+  StreamSubscription<Position> positionStream =
+      Geolocator.getPositionStream(locationSettings: locationSettings)
+          .listen((Position position) {
+    print(position == null
+        ? 'Unknown'
+        : position.latitude.toString() + ', ' + position.longitude.toString());
+    FlutterForegroundTask.updateService(
+        notificationTitle: 'Pos:',
+        notificationText: '${position.latitude}, ${position.longitude}');
+  });
+}
+
 class MyTaskHandler extends TaskHandler {
   SendPort? _sendPort;
   int _eventCount = 0;
@@ -366,7 +394,9 @@ class MyTaskHandler extends TaskHandler {
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
     _sendPort = sendPort;
     print('MyTaskHandler:OnStart: called: sendPort: ${sendPort?.hashCode}');
-
+    // if (Platform.isIOS) {
+    //   getLocationUpdates();
+    // }
     // You can use the getData function to get the stored data.
     String? topic = await FlutterForegroundTask.getData<String>(key: 'topic');
     String? username =
@@ -395,15 +425,13 @@ class MyTaskHandler extends TaskHandler {
   @override
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     // FlutterForegroundTask.updateService(
-    //     notificationTitle: 'MyTaskHandler',
+    //     notificationTitle: 'MQTT Event:',
     //     notificationText: 'eventCount: $_eventCount');
 
     // Send data to the main isolate.
-    print(
-        'MyTaskHandler: SendPort..sending event data: sendPort: ${sendPort.hashCode}');
+    print('MyTaskHandler: onEvent..$_eventCount');
     sendPort?.send(_eventCount);
     manager.gsendPort = sendPort!;
-
     _eventCount++;
   }
 
@@ -448,10 +476,10 @@ class MyTaskHandler extends TaskHandler {
       String? user, String? passwd, String? topic, SendPort? sendPort) {
     print('Configure and Connect...');
     String osPrefix = 'Flutter_iOS';
-    if (Platform.isAndroid) {
-      osPrefix = generateRandomString(10); // 'Flutter_Android';
-      print('Android platform');
-    }
+    //if (Platform.isAndroid) {
+    osPrefix = generateRandomString(10); // 'Flutter_Android';
+    //  print('Android platform');
+    //}
     saveData(user, passwd, topic);
     manager = MQTTManager(
         //host: '52.66.70.168',
